@@ -6,9 +6,9 @@
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
-    "android:device": "npx expo run:android --no-build-cache --device",
+    "android:device": "npx expo run:android --no-build-cache --device --configuration Release",
     "ios": "expo run:ios",
-    "ios:device": "npx expo run:ios --no-build-cache --device",
+    "ios:device": "npx expo run:ios --no-build-cache --device --configuration Release",
     "web": "expo start --web",
     "lint": "expo lint"
   },
