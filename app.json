@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "upcominghub",
+    "name": "Upcoming Hub",
     "slug": "upcominghub",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,7 +9,8 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.andreazago1997.upcominghub"
     },
     "android": {
       "adaptiveIcon": {
