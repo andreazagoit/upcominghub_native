@@ -8,7 +8,7 @@ const NotificationOnBoardingScreen = () => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Stay Connected with Push Notifications</Text>
       <Text style={styles.description}>
-        We'll send you a notification when you have a new message.
+        We&apos;ll send you a notification when you have a new message.
       </Text>
       <Pressable
         style={({pressed}) => [
