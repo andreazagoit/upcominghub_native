@@ -1,7 +1,7 @@
 import {Button} from "@/components/ui/button";
 import {Text} from "@/components/ui/text";
 import {TextInput} from "@/components/ui/text-input";
-import {useAuth} from "@/lib/auth";
+import {useAuth} from "@/hooks/use-auth";
 import {router} from "expo-router";
 import React, {useState} from "react";
 import {

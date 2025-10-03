@@ -146,7 +146,7 @@ const CollectionDetailScreen = () => {
       style={[
         styles.eventCard,
         {
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
+          backgroundColor: isDark ? "#09090b" : "#ffffff",
           borderColor: isDark ? "#374151" : "#e5e7eb",
         },
       ]}
@@ -195,7 +195,7 @@ const CollectionDetailScreen = () => {
       style={[
         styles.subCollectionCard,
         {
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
+          backgroundColor: isDark ? "#09090b" : "#ffffff",
           borderColor: isDark ? "#374151" : "#e5e7eb",
         },
       ]}

@@ -1,7 +1,8 @@
 import React from "react";
-import {Pressable, StyleSheet, View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Image} from "@/components/ui/image";
+import {Card} from "@/components/ui/card";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
@@ -64,17 +65,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   };
 
   return (
-    <Pressable
-      onPress={handlePress}
-      style={({pressed}) => [
-        styles.card,
-        {
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-        pressed && styles.pressed,
-      ]}
-    >
+    <Card pressable={true} onPress={handlePress} style={styles.card}>
       {showCover && article.cover && (
         <View style={styles.coverContainer}>
           <Image
@@ -137,20 +128,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
             </View>
           )}
       </View>
-    </Pressable>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
-    borderWidth: 1,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   coverContainer: {
     width: "100%",
@@ -200,8 +184,5 @@ const styles = StyleSheet.create({
   collectionText: {
     fontSize: 11,
     fontWeight: "500",
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });

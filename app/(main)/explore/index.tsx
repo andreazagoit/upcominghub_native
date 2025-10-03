@@ -16,6 +16,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {useQuery} from "@apollo/client/react";
 import {graphql} from "@/graphql/generated";
 import type {GetHomepageQuery} from "@/graphql/generated/graphql";
+import {ItemCard} from "@/components/item-card";
 
 const {width} = Dimensions.get("window");
 
@@ -177,36 +178,7 @@ const ExploreScreen = () => {
               contentContainerStyle={styles.horizontalScroll}
             >
               {homepage.popularItems.map((item: any) => (
-                <Pressable
-                  key={item.id}
-                  style={[
-                    styles.itemCard,
-                    {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
-                  ]}
-                  onPress={() => router.push(`/items/${item.slug}`)}
-                >
-                  {item.cover && (
-                    <Image
-                      source={{uri: item.cover}}
-                      style={styles.itemImage}
-                      resizeMode="cover"
-                    />
-                  )}
-                  <View style={styles.itemContent}>
-                    <Text style={styles.itemTitle} numberOfLines={2}>
-                      {item.name}
-                    </Text>
-                    {item.description && (
-                      <Text
-                        variant="secondary"
-                        style={styles.itemDescription}
-                        numberOfLines={3}
-                      >
-                        {item.description}
-                      </Text>
-                    )}
-                  </View>
-                </Pressable>
+                <ItemCard key={item.id} item={item} width={160} />
               ))}
             </ScrollView>
           </View>
@@ -236,7 +208,7 @@ const ExploreScreen = () => {
                   key={article.id}
                   style={[
                     styles.articleCard,
-                    {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
+                    {backgroundColor: isDark ? "#09090b" : "#ffffff"},
                   ]}
                   onPress={() => router.push(`/articles/${article.slug}`)}
                 >
@@ -301,7 +273,7 @@ const ExploreScreen = () => {
                     key={collection.id}
                     style={[
                       styles.collectionCard,
-                      {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
+                      {backgroundColor: isDark ? "#09090b" : "#ffffff"},
                     ]}
                     onPress={() =>
                       router.push(`/collections/${collection.slug}`)
@@ -346,7 +318,7 @@ const ExploreScreen = () => {
                   key={event.id}
                   style={[
                     styles.eventCard,
-                    {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
+                    {backgroundColor: isDark ? "#09090b" : "#ffffff"},
                   ]}
                   onPress={() =>
                     event.item?.slug && router.push(`/items/${event.item.slug}`)
@@ -455,34 +427,7 @@ const styles = StyleSheet.create({
   },
   horizontalScroll: {
     paddingHorizontal: 20,
-    gap: 16,
-  },
-  // Item Cards
-  itemCard: {
-    width: 280,
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  itemImage: {
-    width: "100%",
-    height: 160,
-  },
-  itemContent: {
-    padding: 16,
-  },
-  itemTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  itemDescription: {
-    fontSize: 14,
-    lineHeight: 20,
+    gap: 12,
   },
   // Article Cards
   articlesGrid: {

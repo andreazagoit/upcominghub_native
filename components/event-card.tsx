@@ -1,7 +1,8 @@
 import React from "react";
-import {Pressable, StyleSheet, View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Image} from "@/components/ui/image";
+import {Card} from "@/components/ui/card";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
@@ -58,15 +59,11 @@ export const EventCard: React.FC<EventCardProps> = ({
     }
   };
 
-  const content = (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-      ]}
+  return (
+    <Card
+      pressable={isClickable || !!onPress}
+      onPress={handlePress}
+      style={styles.card}
     >
       {showCover && event.cover && (
         <View style={styles.coverContainer}>
@@ -132,33 +129,14 @@ export const EventCard: React.FC<EventCardProps> = ({
           </View>
         )}
       </View>
-    </View>
-  );
-
-  if (!isClickable && !onPress) {
-    return content;
-  }
-
-  return (
-    <Pressable
-      onPress={handlePress}
-      style={({pressed}) => [pressed && styles.pressed]}
-    >
-      {content}
-    </Pressable>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
-    borderWidth: 1,
     overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    marginBottom: 16,
   },
   coverContainer: {
     width: "100%",
@@ -203,8 +181,5 @@ const styles = StyleSheet.create({
   platformText: {
     fontSize: 11,
     fontWeight: "500",
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });

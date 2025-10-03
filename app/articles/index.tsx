@@ -84,7 +84,7 @@ const ArticlesScreen = () => {
       style={[
         styles.articleCard,
         {
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
+          backgroundColor: isDark ? "#09090b" : "#ffffff",
           borderColor: isDark ? "#374151" : "#e5e7eb",
         },
       ]}

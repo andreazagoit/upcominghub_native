@@ -1,7 +1,7 @@
 import {Button} from "@/components/ui/button";
 import {Text} from "@/components/ui/text";
 import {TextInput} from "@/components/ui/text-input";
-import {useAuth} from "@/lib/auth";
+import {useAuth} from "@/hooks/use-auth";
 import {router} from "expo-router";
 import React, {useState} from "react";
 import {
@@ -22,7 +22,7 @@ const LoginScreen = () => {
     password?: string;
     general?: string;
   }>({});
-  const {login} = useAuth();
+  const {signIn} = useAuth();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -59,7 +59,7 @@ const LoginScreen = () => {
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      const result = await signIn(email, password);
 
       if (result.success && result.user) {
         // Login successful, navigation will be handled by auth state

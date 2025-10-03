@@ -188,7 +188,7 @@ const ArticleDetailScreen = () => {
               style={[
                 styles.excerptContainer,
                 {
-                  backgroundColor: isDark ? "#1f2937" : "#f8fafc",
+                  backgroundColor: isDark ? "#09090b" : "#f8fafc",
                   borderLeftColor: isDark ? "#3b82f6" : "#2563eb",
                 },
               ]}

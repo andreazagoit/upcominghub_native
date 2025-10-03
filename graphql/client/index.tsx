@@ -1,13 +1,14 @@
-import {auth} from "@/lib/auth";
 import {ApolloClient, HttpLink, InMemoryCache, from} from "@apollo/client";
 import {setContext} from "@apollo/client/link/context";
+import {useAuthStore} from "@/stores/auth-store";
 
 const httpLink = new HttpLink({
   uri: "https://www.upcominghub.com/api/graphql",
 });
 
 const authLink = setContext((_, {headers}) => {
-  const token = auth.getAccessToken();
+  // Ottieni il token dallo store zustand
+  const token = useAuthStore.getState().accessToken;
 
   return {
     headers: {

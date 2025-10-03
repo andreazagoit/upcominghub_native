@@ -254,7 +254,7 @@ const CalendarScreen = () => {
                   styles.dayCell,
                   day
                     ? {
-                        backgroundColor: isDark ? "#1f2937" : "#f8fafc",
+                        backgroundColor: isDark ? "#09090b" : "#f8fafc",
                         borderColor: isDark ? "#374151" : "#e2e8f0",
                         borderWidth: 1,
                       }
@@ -303,7 +303,7 @@ const CalendarScreen = () => {
                 style={[
                   styles.eventItem,
                   {
-                    backgroundColor: isDark ? "#1f2937" : "#ffffff",
+                    backgroundColor: isDark ? "#09090b" : "#ffffff",
                     borderColor: isDark ? "#374151" : "#e5e7eb",
                   },
                 ]}

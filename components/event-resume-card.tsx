@@ -43,7 +43,6 @@ export const EventResumeCard: React.FC<EventResumeCardProps> = ({
           uri={event.cover}
           imageStyle={styles.coverImage}
           resizeMode="cover"
-          showPlaceholder={true}
           placeholderContent="🖼️"
         />
       </View>

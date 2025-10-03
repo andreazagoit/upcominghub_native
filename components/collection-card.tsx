@@ -1,6 +1,7 @@
 import React from "react";
-import {Pressable, StyleSheet, View} from "react-native";
+import {StyleSheet, View} from "react-native";
 import {Text} from "@/components/ui/text";
+import {Card} from "@/components/ui/card";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
@@ -40,17 +41,10 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
   };
 
   return (
-    <Pressable
+    <Card
+      pressable={true}
       onPress={handlePress}
-      style={({pressed}) => [
-        styles.card,
-        {
-          backgroundColor: isDark ? "#1f2937" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-          width: width || "100%",
-        },
-        pressed && styles.pressed,
-      ]}
+      style={[styles.card, width && {width}]}
     >
       <View style={styles.content}>
         <View style={styles.header}>
@@ -81,20 +75,12 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
           </Text>
         )}
       </View>
-    </Pressable>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
     minHeight: 120,
   },
   content: {
@@ -124,8 +110,5 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     lineHeight: 20,
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });
