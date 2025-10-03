@@ -307,6 +307,9 @@ const CalendarScreen = () => {
                     borderColor: isDark ? "#374151" : "#e5e7eb",
                   },
                 ]}
+                onPress={() =>
+                  event.item?.slug && router.push(`/items/${event.item.slug}`)
+                }
               >
                 {event.cover && (
                   <Image

@@ -3,6 +3,7 @@ import {router} from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
+  Dimensions,
   FlatList,
   Image,
   Pressable,
@@ -11,40 +12,29 @@ import {
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
-import type {GetArticlesQuery} from "@/graphql/generated/graphql";
+import type {GetItemsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 
-const GET_ARTICLES = graphql(`
-  query GetArticles($filter: ArticlesFilterInput) {
-    articles(filter: $filter) {
+const {width} = Dimensions.get("window");
+
+const GET_ITEMS = graphql(`
+  query GetItems($page: Int, $limit: Int, $searchTerm: String) {
+    items(page: $page, limit: $limit, searchTerm: $searchTerm) {
       data {
         id
-        title
-        content
-        excerpt
         slug
-        published
-        createdAt
-        updatedAt
-        author {
-          id
-          name
-          email
-          image
-          createdAt
-          updatedAt
-          role
-          slug
-          type
-        }
+        name
+        description
         cover
-        collections {
+        isFavorite
+        events {
           id
           name
-          slug
-          description
+          yearStart
+          monthStart
+          dayStart
         }
       }
       pagination {
@@ -59,88 +49,67 @@ const GET_ARTICLES = graphql(`
   }
 `);
 
-type Article = NonNullable<GetArticlesQuery["articles"]>["data"][0];
+type Item = NonNullable<GetItemsQuery["items"]>["data"][0];
 
-const ArticlesScreen = () => {
+const ItemsScreen = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const {data, loading, error, refetch} = useQuery<GetArticlesQuery>(
-    GET_ARTICLES,
-    {
-      variables: {
-        filter: {
-          page: 1,
-          limit: 20,
-          language: "it",
-        },
-      },
-      fetchPolicy: "cache-and-network",
-    }
-  );
+  const {data, loading, error, refetch} = useQuery<GetItemsQuery>(GET_ITEMS, {
+    variables: {
+      page: 1,
+      limit: 20,
+      searchTerm: undefined,
+    },
+    fetchPolicy: "cache-and-network",
+  });
 
-  const renderArticle = ({item}: {item: Article}) => (
+  const renderItem = ({item}: {item: Item}) => (
     <Pressable
       style={[
-        styles.articleCard,
+        styles.itemCard,
         {
           backgroundColor: isDark ? "#1f2937" : "#ffffff",
           borderColor: isDark ? "#374151" : "#e5e7eb",
         },
       ]}
-      onPress={() => router.push(`/articles/${item.slug}`)}
+      onPress={() => router.push(`/items/${item.slug}`)}
     >
       {item.cover && (
         <Image
           source={{uri: item.cover}}
-          style={styles.articleCover}
+          style={styles.itemCover}
           resizeMode="cover"
         />
       )}
-      <View style={styles.articleContent}>
+      <View style={styles.itemContent}>
         <Text
-          style={[styles.articleTitle, {color: isDark ? "#ffffff" : "#111827"}]}
+          style={[styles.itemTitle, {color: isDark ? "#ffffff" : "#111827"}]}
           numberOfLines={2}
         >
-          {item.title}
+          {item.name}
         </Text>
-        {item.excerpt && (
+        {item.description && (
           <Text
             variant="secondary"
-            style={styles.articleExcerpt}
+            style={styles.itemDescription}
             numberOfLines={3}
           >
-            {item.excerpt}
+            {item.description}
           </Text>
         )}
-        <View style={styles.articleMeta}>
-          <Text variant="secondary" style={styles.authorName}>
-            di {item.author.name}
-          </Text>
-          <Text variant="muted" style={styles.publishDate}>
-            {new Date(item.createdAt).toLocaleDateString("it-IT")}
-          </Text>
-        </View>
-        {item.collections && item.collections.length > 0 && (
-          <View style={styles.collectionsContainer}>
-            {item.collections.slice(0, 3).map((collection) => (
-              <View
-                key={collection.id}
-                style={[
-                  styles.collectionTag,
-                  {backgroundColor: isDark ? "#374151" : "#f3f4f6"},
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.collectionText,
-                    {color: isDark ? "#d1d5db" : "#374151"},
-                  ]}
-                >
-                  {collection.name}
-                </Text>
-              </View>
-            ))}
+        {item.events && item.events.length > 0 && (
+          <View style={styles.eventsInfo}>
+            <Text variant="muted" style={styles.eventsCount}>
+              📅 {item.events.length} event
+              {item.events.length !== 1 ? "i" : "o"}
+            </Text>
+            {item.events[0].yearStart && (
+              <Text variant="muted" style={styles.nextEvent}>
+                Prossimo: {item.events[0].dayStart}/{item.events[0].monthStart}/
+                {item.events[0].yearStart}
+              </Text>
+            )}
           </View>
         )}
       </View>
@@ -161,7 +130,7 @@ const ArticlesScreen = () => {
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
           <Text variant="secondary" style={styles.loadingText}>
-            Caricamento articoli...
+            Caricamento items...
           </Text>
         </View>
       </SafeAreaView>
@@ -179,7 +148,7 @@ const ArticlesScreen = () => {
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Errore nel caricamento</Text>
           <Text variant="secondary" style={styles.errorText}>
-            {error?.message || "Impossibile caricare gli articoli"}
+            {error?.message || "Impossibile caricare gli items"}
           </Text>
           <Button onPress={() => refetch()} style={styles.retryButton}>
             Riprova
@@ -189,7 +158,8 @@ const ArticlesScreen = () => {
     );
   }
 
-  const articles = data?.articles?.data || [];
+  const items = data?.items?.data || [];
+  const pagination = data?.items?.pagination;
 
   return (
     <SafeAreaView
@@ -199,39 +169,47 @@ const ArticlesScreen = () => {
       ]}
       edges={["left", "right"]}
     >
-      {data?.articles?.pagination && (
+      {pagination && (
         <View
           style={[
             styles.header,
             {borderBottomColor: isDark ? "#374151" : "#e5e7eb"},
           ]}
         >
-          <Text style={styles.headerTitle}>Articoli</Text>
-          <Text variant="secondary" style={styles.articleCount}>
-            {data.articles.pagination.total} articoli disponibili
+          <Text style={styles.headerTitle}>Items</Text>
+          <Text variant="secondary" style={styles.itemCount}>
+            {pagination.total} items disponibili
           </Text>
         </View>
       )}
 
-      {articles.length === 0 ? (
+      {items.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📰</Text>
+          <Text style={styles.emptyIcon}>📦</Text>
           <Text
             style={[styles.emptyTitle, {color: isDark ? "#ffffff" : "#111827"}]}
           >
-            Nessun articolo disponibile
+            Nessun item disponibile
           </Text>
           <Text variant="secondary" style={styles.emptyText}>
-            Gli articoli saranno disponibili presto
+            Gli items saranno disponibili presto
           </Text>
+          <Button
+            onPress={() => router.push("/(main)/explore")}
+            style={styles.exploreButton}
+          >
+            Esplora contenuti
+          </Button>
         </View>
       ) : (
         <FlatList
-          data={articles}
-          renderItem={renderArticle}
+          data={items}
+          renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
         />
       )}
     </SafeAreaView>
@@ -241,7 +219,7 @@ const ArticlesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100, // Compensa l'header trasparente
+    paddingTop: 100,
   },
   loadingContainer: {
     flex: 1,
@@ -291,6 +269,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     textAlign: "center",
+    marginBottom: 24,
+  },
+  exploreButton: {
+    minWidth: 200,
   },
   header: {
     paddingHorizontal: 20,
@@ -302,16 +284,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 4,
   },
-  articleCount: {
+  itemCount: {
     fontSize: 14,
   },
   listContainer: {
     padding: 20,
   },
-  articleCard: {
+  columnWrapper: {
+    gap: 16,
+  },
+  itemCard: {
+    flex: 1,
+    maxWidth: (width - 56) / 2,
     borderRadius: 16,
-    marginBottom: 16,
     borderWidth: 1,
+    marginBottom: 16,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: {width: 0, height: 2},
@@ -319,51 +306,35 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  articleCover: {
+  itemCover: {
     width: "100%",
-    height: 200,
+    height: 140,
   },
-  articleContent: {
-    padding: 16,
+  itemContent: {
+    padding: 12,
   },
-  articleTitle: {
-    fontSize: 18,
+  itemTitle: {
+    fontSize: 16,
     fontWeight: "600",
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  itemDescription: {
+    fontSize: 13,
+    lineHeight: 18,
     marginBottom: 8,
   },
-  articleExcerpt: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  articleMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  authorName: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  publishDate: {
-    fontSize: 12,
-  },
-  collectionsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
+  eventsInfo: {
     marginTop: 8,
+    paddingTop: 8,
+    gap: 4,
   },
-  collectionTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  collectionText: {
+  eventsCount: {
     fontSize: 11,
-    fontWeight: "500",
+  },
+  nextEvent: {
+    fontSize: 11,
   },
 });
 
-export default ArticlesScreen;
+export default ItemsScreen;

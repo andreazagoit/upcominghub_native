@@ -55,6 +55,20 @@ function AppContent() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="collections"
+            options={{
+              title: "Collections",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="items"
+            options={{
+              title: "Items",
+              headerShown: false,
+            }}
+          />
         </Stack>
       </ApolloProvider>
       <StatusBar style="auto" />

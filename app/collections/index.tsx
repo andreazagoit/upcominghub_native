@@ -4,144 +4,85 @@ import React from "react";
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   View,
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
-import type {GetArticlesQuery} from "@/graphql/generated/graphql";
+import type {GetCollectionsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 
-const GET_ARTICLES = graphql(`
-  query GetArticles($filter: ArticlesFilterInput) {
-    articles(filter: $filter) {
-      data {
-        id
-        title
-        content
-        excerpt
-        slug
-        published
-        createdAt
-        updatedAt
-        author {
-          id
-          name
-          email
-          image
-          createdAt
-          updatedAt
-          role
-          slug
-          type
-        }
-        cover
-        collections {
-          id
-          name
-          slug
-          description
-        }
-      }
-      pagination {
-        page
-        limit
-        total
-        totalPages
-        hasNextPage
-        hasPreviousPage
-      }
+const GET_COLLECTIONS = graphql(`
+  query GetCollections($parentSlug: String) {
+    collections(parentSlug: $parentSlug) {
+      slug
+      name
+      description
+      isFeatured
     }
   }
 `);
 
-type Article = NonNullable<GetArticlesQuery["articles"]>["data"][0];
+type Collection = NonNullable<GetCollectionsQuery["collections"]>[0];
 
-const ArticlesScreen = () => {
+const CollectionsScreen = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
 
-  const {data, loading, error, refetch} = useQuery<GetArticlesQuery>(
-    GET_ARTICLES,
+  const {data, loading, error, refetch} = useQuery<GetCollectionsQuery>(
+    GET_COLLECTIONS,
     {
       variables: {
-        filter: {
-          page: 1,
-          limit: 20,
-          language: "it",
-        },
+        parentSlug: undefined,
       },
       fetchPolicy: "cache-and-network",
     }
   );
 
-  const renderArticle = ({item}: {item: Article}) => (
+  const renderCollection = ({item}: {item: Collection}) => (
     <Pressable
       style={[
-        styles.articleCard,
+        styles.collectionCard,
         {
           backgroundColor: isDark ? "#1f2937" : "#ffffff",
           borderColor: isDark ? "#374151" : "#e5e7eb",
         },
       ]}
-      onPress={() => router.push(`/articles/${item.slug}`)}
+      onPress={() => router.push(`/collections/${item.slug}`)}
     >
-      {item.cover && (
-        <Image
-          source={{uri: item.cover}}
-          style={styles.articleCover}
-          resizeMode="cover"
-        />
-      )}
-      <View style={styles.articleContent}>
-        <Text
-          style={[styles.articleTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          numberOfLines={2}
-        >
-          {item.title}
-        </Text>
-        {item.excerpt && (
+      <View style={styles.collectionContent}>
+        <View style={styles.collectionHeader}>
+          <Text
+            style={[
+              styles.collectionTitle,
+              {color: isDark ? "#ffffff" : "#111827"},
+            ]}
+            numberOfLines={2}
+          >
+            {item.name}
+          </Text>
+          {item.isFeatured && (
+            <View
+              style={[
+                styles.featuredBadge,
+                {backgroundColor: isDark ? "#3b82f6" : "#2563eb"},
+              ]}
+            >
+              <Text style={styles.featuredText}>⭐</Text>
+            </View>
+          )}
+        </View>
+        {item.description && (
           <Text
             variant="secondary"
-            style={styles.articleExcerpt}
+            style={styles.collectionDescription}
             numberOfLines={3}
           >
-            {item.excerpt}
+            {item.description}
           </Text>
-        )}
-        <View style={styles.articleMeta}>
-          <Text variant="secondary" style={styles.authorName}>
-            di {item.author.name}
-          </Text>
-          <Text variant="muted" style={styles.publishDate}>
-            {new Date(item.createdAt).toLocaleDateString("it-IT")}
-          </Text>
-        </View>
-        {item.collections && item.collections.length > 0 && (
-          <View style={styles.collectionsContainer}>
-            {item.collections.slice(0, 3).map((collection) => (
-              <View
-                key={collection.id}
-                style={[
-                  styles.collectionTag,
-                  {backgroundColor: isDark ? "#374151" : "#f3f4f6"},
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.collectionText,
-                    {color: isDark ? "#d1d5db" : "#374151"},
-                  ]}
-                >
-                  {collection.name}
-                </Text>
-              </View>
-            ))}
-          </View>
         )}
       </View>
     </Pressable>
@@ -161,7 +102,7 @@ const ArticlesScreen = () => {
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
           <Text variant="secondary" style={styles.loadingText}>
-            Caricamento articoli...
+            Caricamento collezioni...
           </Text>
         </View>
       </SafeAreaView>
@@ -179,7 +120,7 @@ const ArticlesScreen = () => {
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Errore nel caricamento</Text>
           <Text variant="secondary" style={styles.errorText}>
-            {error?.message || "Impossibile caricare gli articoli"}
+            {error?.message || "Impossibile caricare le collezioni"}
           </Text>
           <Button onPress={() => refetch()} style={styles.retryButton}>
             Riprova
@@ -189,7 +130,7 @@ const ArticlesScreen = () => {
     );
   }
 
-  const articles = data?.articles?.data || [];
+  const collections = data?.collections || [];
 
   return (
     <SafeAreaView
@@ -199,39 +140,47 @@ const ArticlesScreen = () => {
       ]}
       edges={["left", "right"]}
     >
-      {data?.articles?.pagination && (
+      {collections.length > 0 && (
         <View
           style={[
             styles.header,
             {borderBottomColor: isDark ? "#374151" : "#e5e7eb"},
           ]}
         >
-          <Text style={styles.headerTitle}>Articoli</Text>
-          <Text variant="secondary" style={styles.articleCount}>
-            {data.articles.pagination.total} articoli disponibili
+          <Text style={styles.headerTitle}>Collezioni</Text>
+          <Text variant="secondary" style={styles.collectionCount}>
+            {collections.length} collezioni disponibili
           </Text>
         </View>
       )}
 
-      {articles.length === 0 ? (
+      {collections.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📰</Text>
+          <Text style={styles.emptyIcon}>🗂️</Text>
           <Text
             style={[styles.emptyTitle, {color: isDark ? "#ffffff" : "#111827"}]}
           >
-            Nessun articolo disponibile
+            Nessuna collezione disponibile
           </Text>
           <Text variant="secondary" style={styles.emptyText}>
-            Gli articoli saranno disponibili presto
+            Le collezioni saranno disponibili presto
           </Text>
+          <Button
+            onPress={() => router.push("/(main)/explore")}
+            style={styles.exploreButton}
+          >
+            Esplora contenuti
+          </Button>
         </View>
       ) : (
         <FlatList
-          data={articles}
-          renderItem={renderArticle}
-          keyExtractor={(item) => item.id}
+          data={collections}
+          renderItem={renderCollection}
+          keyExtractor={(item) => item.slug}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
+          numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
         />
       )}
     </SafeAreaView>
@@ -241,7 +190,7 @@ const ArticlesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100, // Compensa l'header trasparente
+    paddingTop: 100,
   },
   loadingContainer: {
     flex: 1,
@@ -291,6 +240,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     textAlign: "center",
+    marginBottom: 24,
+  },
+  exploreButton: {
+    minWidth: 200,
   },
   header: {
     paddingHorizontal: 20,
@@ -302,68 +255,57 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 4,
   },
-  articleCount: {
+  collectionCount: {
     fontSize: 14,
   },
   listContainer: {
     padding: 20,
   },
-  articleCard: {
+  columnWrapper: {
+    gap: 16,
+  },
+  collectionCard: {
+    flex: 1,
+    maxWidth: "48%",
     borderRadius: 16,
-    marginBottom: 16,
     borderWidth: 1,
+    marginBottom: 16,
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 4,
+    minHeight: 140,
   },
-  articleCover: {
-    width: "100%",
-    height: 200,
-  },
-  articleContent: {
+  collectionContent: {
     padding: 16,
   },
-  articleTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  articleExcerpt: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  articleMeta: {
+  collectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     marginBottom: 8,
   },
-  authorName: {
-    fontSize: 12,
-    fontWeight: "500",
+  collectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    flex: 1,
+    lineHeight: 22,
   },
-  publishDate: {
-    fontSize: 12,
-  },
-  collectionsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 8,
-  },
-  collectionTag: {
+  featuredBadge: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 12,
+    marginLeft: 8,
   },
-  collectionText: {
-    fontSize: 11,
-    fontWeight: "500",
+  featuredText: {
+    fontSize: 12,
+  },
+  collectionDescription: {
+    fontSize: 14,
+    lineHeight: 20,
   },
 });
 
-export default ArticlesScreen;
+export default CollectionsScreen;

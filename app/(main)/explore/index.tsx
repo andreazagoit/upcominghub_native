@@ -163,6 +163,13 @@ const ExploreScreen = () => {
                   Gli items più amati dalla community
                 </Text>
               </View>
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={() => router.push("/items")}
+              >
+                Vedi tutti →
+              </Button>
             </View>
             <ScrollView
               horizontal
@@ -176,9 +183,7 @@ const ExploreScreen = () => {
                     styles.itemCard,
                     {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
                   ]}
-                  onPress={() => {
-                    // TODO: Navigate to item detail
-                  }}
+                  onPress={() => router.push(`/items/${item.slug}`)}
                 >
                   {item.cover && (
                     <Image
@@ -278,6 +283,13 @@ const ExploreScreen = () => {
                     Le collezioni più popolari del momento
                   </Text>
                 </View>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onPress={() => router.push("/collections")}
+                >
+                  Vedi tutte →
+                </Button>
               </View>
               <ScrollView
                 horizontal
@@ -291,9 +303,9 @@ const ExploreScreen = () => {
                       styles.collectionCard,
                       {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
                     ]}
-                    onPress={() => {
-                      // TODO: Navigate to collection detail
-                    }}
+                    onPress={() =>
+                      router.push(`/collections/${collection.slug}`)
+                    }
                   >
                     <Text style={styles.collectionTitle}>
                       {collection.name}
@@ -336,6 +348,9 @@ const ExploreScreen = () => {
                     styles.eventCard,
                     {backgroundColor: isDark ? "#1f2937" : "#ffffff"},
                   ]}
+                  onPress={() =>
+                    event.item?.slug && router.push(`/items/${event.item.slug}`)
+                  }
                 >
                   <View style={styles.eventContent}>
                     <Text style={styles.eventTitle} numberOfLines={2}>
