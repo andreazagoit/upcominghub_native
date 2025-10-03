@@ -1,5 +1,5 @@
 import React from "react";
-import {StyleSheet, View} from "react-native";
+import {StyleSheet, View, type DimensionValue} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Card} from "@/components/ui/card";
 import {useColorScheme} from "@/hooks/use-color-scheme";
@@ -17,7 +17,7 @@ interface CollectionCardProps {
   /**
    * Larghezza della card (opzionale, default: auto)
    */
-  width?: number | string;
+  width?: DimensionValue;
   /**
    * Callback custom onPress (sovrascrive la navigazione default)
    */
@@ -44,7 +44,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     <Card
       pressable={true}
       onPress={handlePress}
-      style={[styles.card, width && {width}]}
+      style={[styles.card, width ? {width} : null]}
     >
       <View style={styles.content}>
         <View style={styles.header}>

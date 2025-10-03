@@ -1,7 +1,7 @@
 import {Button} from "@/components/ui/button";
 import {Text} from "@/components/ui/text";
 import {useColorScheme} from "@/hooks/use-color-scheme";
-import React, {useState} from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -61,7 +61,8 @@ const GET_FAVORITE_CALENDAR = graphql(`
 const CalendarScreen = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const [selectedMonth, setSelectedMonth] = useState(new Date());
+  // TODO: Implement month selection
+  // const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const {data, loading, error, refetch} = useQuery<GetFavoriteCalendarQuery>(
     GET_FAVORITE_CALENDAR,
@@ -74,8 +75,9 @@ const CalendarScreen = () => {
   const events = data?.favoriteCalendarEvents?.data || [];
 
   // Generate calendar days for current month
-  const year = selectedMonth.getFullYear();
-  const month = selectedMonth.getMonth();
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const daysInMonth = lastDay.getDate();

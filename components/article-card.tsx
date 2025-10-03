@@ -19,11 +19,11 @@ interface Article {
     image?: string | null;
     slug?: string | null;
   } | null;
-  collections?: Array<{
+  collections?: {
     id: string;
     name: string;
     slug: string;
-  }> | null;
+  }[] | null;
 }
 
 interface ArticleCardProps {

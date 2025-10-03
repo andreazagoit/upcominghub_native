@@ -12,13 +12,13 @@ interface Item {
   name: string;
   description?: string | null;
   cover?: string | null;
-  events?: Array<{
+  events?: {
     id: string;
     name?: string | null;
     yearStart?: number | null;
     monthStart?: number | null;
     dayStart?: number | null;
-  }> | null;
+  }[] | null;
 }
 
 interface ItemCardProps {

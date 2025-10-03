@@ -1,5 +1,5 @@
 import {Text} from "@/components/ui/text";
-import {useAuth} from "@/hooks/use-auth-zustand";
+import {useAuth} from "@/hooks/use-auth";
 import {router} from "expo-router";
 import React from "react";
 import {Alert, Pressable, ScrollView, StyleSheet, View} from "react-native";

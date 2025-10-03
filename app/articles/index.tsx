@@ -114,9 +114,11 @@ const ArticlesScreen = () => {
           </Text>
         )}
         <View style={styles.articleMeta}>
-          <Text variant="secondary" style={styles.authorName}>
-            di {item.author.name}
-          </Text>
+          {item.author && (
+            <Text variant="secondary" style={styles.authorName}>
+              di {item.author.name}
+            </Text>
+          )}
           <Text variant="muted" style={styles.publishDate}>
             {new Date(item.createdAt).toLocaleDateString("it-IT")}
           </Text>
@@ -229,7 +231,7 @@ const ArticlesScreen = () => {
         <FlatList
           data={articles}
           renderItem={renderArticle}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
         />

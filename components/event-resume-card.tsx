@@ -13,11 +13,11 @@ interface Event {
   monthStart?: number | null;
   dayStart?: number | null;
   timeStart?: string | null;
-  availability?: Array<{
+  availability?: {
     id: string;
     platform: string;
     link?: string | null;
-  }> | null;
+  }[] | null;
 }
 
 interface EventResumeCardProps {

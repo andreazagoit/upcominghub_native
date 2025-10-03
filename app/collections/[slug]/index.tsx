@@ -3,7 +3,6 @@ import {router, useLocalSearchParams} from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
-  FlatList,
   Image,
   Pressable,
   ScrollView,

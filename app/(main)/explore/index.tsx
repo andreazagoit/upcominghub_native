@@ -2,10 +2,9 @@ import {Button} from "@/components/ui/button";
 import {Text} from "@/components/ui/text";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
-import React, {useEffect, useState} from "react";
+import React from "react";
 import {
   ActivityIndicator,
-  Dimensions,
   Image,
   Pressable,
   ScrollView,
@@ -17,8 +16,6 @@ import {useQuery} from "@apollo/client/react";
 import {graphql} from "@/graphql/generated";
 import type {GetHomepageQuery} from "@/graphql/generated/graphql";
 import {ItemCard} from "@/components/item-card";
-
-const {width} = Dimensions.get("window");
 
 const GET_HOMEPAGE = graphql(`
   query GetHomepage {

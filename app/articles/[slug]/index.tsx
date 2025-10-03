@@ -117,7 +117,7 @@ const ArticleDetailScreen = () => {
             Articolo non trovato
           </Text>
           <Text variant="secondary" style={styles.errorText}>
-            L'articolo che stai cercando non esiste o è stato rimosso
+            L&apos;articolo che stai cercando non esiste o è stato rimosso
           </Text>
           <Button onPress={() => router.back()} style={styles.backButton}>
             Torna indietro

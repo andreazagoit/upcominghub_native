@@ -7,6 +7,7 @@ import {
   PressableProps,
   StyleProp,
   StyleSheet,
+  Text as RNText,
   View,
   ViewStyle,
 } from "react-native";
@@ -106,7 +107,6 @@ export const Image: React.FC<CustomImageProps> = ({
 };
 
 const Text = ({children, style}: {children: string; style?: any}) => {
-  const RNText = require("react-native").Text;
   return <RNText style={style}>{children}</RNText>;
 };
 

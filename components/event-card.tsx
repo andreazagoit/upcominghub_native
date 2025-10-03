@@ -19,11 +19,11 @@ interface Event {
     slug: string;
     name: string;
   } | null;
-  availability?: Array<{
+  availability?: {
     id: string;
     platform: string;
     link?: string | null;
-  }> | null;
+  }[] | null;
 }
 
 interface EventCardProps {

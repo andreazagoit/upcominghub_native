@@ -12,9 +12,17 @@ export const useAuth = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
 
+  // TODO: Implementare register nel store
+  const register = async (email: string, password: string, name: string) => {
+    console.warn("Register not implemented yet");
+    return {success: false, message: "Not implemented"};
+  };
+
   return {
     signIn,
     signOut,
+    register, // Alias temporaneo
+    logout: signOut, // Alias per compatibilità
     user,
     isAuthenticated,
     isLoading,
