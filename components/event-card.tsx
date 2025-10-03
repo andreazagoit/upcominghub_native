@@ -7,7 +7,7 @@ import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
 interface Event {
-  id: string;
+  id: number;
   name: string;
   description?: string | null;
   cover?: string | null;
@@ -20,7 +20,7 @@ interface Event {
     name: string;
   } | null;
   availability?: {
-    id: string;
+    id: number;
     platform: string;
     link?: string | null;
   }[] | null;
@@ -67,12 +67,7 @@ export const EventCard: React.FC<EventCardProps> = ({
     >
       {showCover && event.cover && (
         <View style={styles.coverContainer}>
-          <Image
-            uri={event.cover}
-            imageStyle={styles.cover}
-            resizeMode="cover"
-            showPlaceholder={false}
-          />
+          <Image uri={event.cover} style={styles.cover} />
         </View>
       )}
       <View style={styles.content}>

@@ -53,7 +53,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, width, onPress}) => {
     >
       {/* Immagine in alto */}
       <View style={styles.imageContainer}>
-        <Image uri={item.cover} imageStyle={styles.cover} resizeMode="cover" />
+        <Image uri={item.cover} style={styles.cover} />
       </View>
 
       {/* Testi sotto */}

@@ -69,7 +69,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
           <Text
             variant="secondary"
             style={styles.description}
-            numberOfLines={3}
+            numberOfLines={2}
           >
             {collection.description}
           </Text>

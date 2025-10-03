@@ -156,12 +156,7 @@ const ItemDetailScreen = () => {
           {/* Cover Image */}
           {item.cover && (
             <View style={styles.coverWrapper}>
-              <Image
-                uri={item.cover}
-                imageStyle={styles.coverImage}
-                resizeMode="cover"
-                showPlaceholder={false}
-              />
+              <Image uri={item.cover} style={styles.coverImage} />
             </View>
           )}
 
@@ -192,11 +187,7 @@ const ItemDetailScreen = () => {
                 }
               >
                 {item.author.image && (
-                  <Image
-                    uri={item.author.image}
-                    imageStyle={styles.authorAvatar}
-                    showPlaceholder={false}
-                  />
+                  <Image uri={item.author.image} style={styles.authorAvatar} />
                 )}
                 <View>
                   <Text

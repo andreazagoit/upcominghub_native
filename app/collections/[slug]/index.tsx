@@ -3,18 +3,19 @@ import {router, useLocalSearchParams} from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from "react-native";
+import {Image} from "@/components/ui/image";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetCollectionQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
 import {useColorScheme} from "@/hooks/use-color-scheme";
+import {CollectionCard} from "@/components/collection-card";
 
 const GET_COLLECTION = graphql(`
   query GetCollection($slug: String!, $page: Int, $limit: Int) {
@@ -151,13 +152,7 @@ const CollectionDetailScreen = () => {
       ]}
       onPress={() => item.item?.slug && router.push(`/items/${item.item.slug}`)}
     >
-      {item.cover && (
-        <Image
-          source={{uri: item.cover}}
-          style={styles.eventCover}
-          resizeMode="cover"
-        />
-      )}
+      <Image uri={item.cover} style={styles.eventCover} />
       <View style={styles.eventContent}>
         <Text
           style={[styles.eventTitle, {color: isDark ? "#ffffff" : "#111827"}]}
@@ -189,32 +184,6 @@ const CollectionDetailScreen = () => {
     </Pressable>
   );
 
-  const renderSubCollection = ({item}: {item: SubCollection}) => (
-    <Pressable
-      style={[
-        styles.subCollectionCard,
-        {
-          backgroundColor: isDark ? "#09090b" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-      ]}
-      onPress={() => router.push(`/collections/${item.slug}`)}
-    >
-      <Text
-        style={[
-          styles.subCollectionTitle,
-          {color: isDark ? "#ffffff" : "#111827"},
-        ]}
-      >
-        {item.name}
-      </Text>
-      {item.description && (
-        <Text variant="secondary" style={styles.subCollectionDescription}>
-          {item.description}
-        </Text>
-      )}
-    </Pressable>
-  );
 
   return (
     <SafeAreaView
@@ -236,7 +205,7 @@ const CollectionDetailScreen = () => {
           )}
         </View>
 
-        {/* Subcollections */}
+        {/* Collections */}
         {subcollections.length > 0 && (
           <View style={styles.section}>
             <Text
@@ -245,15 +214,28 @@ const CollectionDetailScreen = () => {
                 {color: isDark ? "#ffffff" : "#111827"},
               ]}
             >
-              Sottocollezioni
+              Collezioni
             </Text>
-            <View style={styles.subCollectionsGrid}>
-              {subcollections.map((subcol) => (
-                <View key={subcol.slug} style={styles.subCollectionWrapper}>
-                  {renderSubCollection({item: subcol})}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.horizontalScroll}
+            >
+              {subcollections.map((collection) => (
+                <View key={collection.slug} style={styles.collectionCardWrapper}>
+                  <CollectionCard
+                    collection={{
+                      id: collection.slug,
+                      slug: collection.slug,
+                      name: collection.name,
+                      description: collection.description,
+                      isFeatured: collection.isFeatured,
+                    }}
+                    width={280}
+                  />
                 </View>
               ))}
-            </View>
+            </ScrollView>
           </View>
         )}
 
@@ -358,30 +340,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     paddingHorizontal: 20,
   },
-  subCollectionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+  horizontalScroll: {
     paddingHorizontal: 20,
-    gap: 16,
+    gap: 12,
   },
-  subCollectionWrapper: {
-    width: "48%",
-  },
-  subCollectionCard: {
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    minHeight: 100,
-    justifyContent: "center",
-  },
-  subCollectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  subCollectionDescription: {
-    fontSize: 13,
-    lineHeight: 18,
+  collectionCardWrapper: {
+    width: 280,
   },
   eventsContainer: {
     paddingHorizontal: 20,

@@ -6,7 +6,7 @@ import {Image} from "@/components/ui/image";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 
 interface Event {
-  id: string;
+  id: number;
   name: string;
   cover?: string | null;
   yearStart?: number | null;
@@ -14,7 +14,7 @@ interface Event {
   dayStart?: number | null;
   timeStart?: string | null;
   availability?: {
-    id: string;
+    id: number;
     platform: string;
     link?: string | null;
   }[] | null;
@@ -39,12 +39,7 @@ export const EventResumeCard: React.FC<EventResumeCardProps> = ({
     <View style={styles.content}>
       {/* Cover Image */}
       <View style={styles.imageContainer}>
-        <Image
-          uri={event.cover}
-          imageStyle={styles.coverImage}
-          resizeMode="cover"
-          placeholderContent="🖼️"
-        />
+        <Image uri={event.cover} style={styles.coverImage} />
       </View>
 
       {/* Event Info */}

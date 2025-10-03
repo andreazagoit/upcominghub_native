@@ -1,23 +1,47 @@
-import {useLazyQuery} from "@apollo/client/react";
-import {router} from "expo-router";
+import {useQuery, useLazyQuery} from "@apollo/client/react";
+import {router, useLocalSearchParams} from "expo-router";
 import React, {useState} from "react";
 import {
   ActivityIndicator,
-  Alert,
-  Pressable,
   ScrollView,
   StyleSheet,
   View,
+  Pressable,
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
-import type {GetUserEventsQuery} from "@/graphql/generated/graphql";
+import type {
+  GetUserProfileQuery,
+  GetUserEventsQuery,
+} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import {Image} from "@/components/ui/image";
 import {EventResumeCard} from "@/components/event-resume-card";
-import {useAuth} from "@/hooks/use-auth";
+import {CollectionCard} from "@/components/collection-card";
+
+const GET_USER_PROFILE = graphql(`
+  query GetUserProfile($slug: String!) {
+    user(slug: $slug) {
+      id
+      slug
+      name
+      email
+      image
+      bio
+      role
+      type
+      collections {
+        id
+        slug
+        name
+        description
+        isFeatured
+      }
+    }
+  }
+`);
 
 const GET_USER_EVENTS = graphql(`
   query GetUserEvents($userId: String!, $page: Int!, $limit: Int!) {
@@ -56,14 +80,15 @@ const GET_USER_EVENTS = graphql(`
 type Event = NonNullable<
   NonNullable<GetUserEventsQuery["userEvents"]>["data"]
 >[0];
+type Collection = NonNullable<
+  NonNullable<GetUserProfileQuery["user"]>["collections"]
+>[0];
 
-const AccountScreen = () => {
+const UserProfileScreen = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
-  const {user, logout} = useAuth();
-  const [activeTab, setActiveTab] = useState<
-    "events" | "profile"
-  >("events");
+  const {slug} = useLocalSearchParams<{slug: string}>();
+  const [activeTab, setActiveTab] = useState<"events" | "favorites">("events");
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [pagination, setPagination] = useState<{
     page: number;
@@ -75,7 +100,21 @@ const AccountScreen = () => {
   } | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
 
+  const {data, loading, error} = useQuery<GetUserProfileQuery>(
+    GET_USER_PROFILE,
+    {
+      variables: {
+        slug: slug as string,
+      },
+      skip: !slug,
+      fetchPolicy: "cache-and-network",
+    }
+  );
+
   const [fetchEvents] = useLazyQuery<GetUserEventsQuery>(GET_USER_EVENTS);
+
+  const user = data?.user;
+  const favoriteCollections = user && Array.isArray(user.collections) ? user.collections : [];
 
   // Load events when user is loaded
   React.useEffect(() => {
@@ -126,36 +165,9 @@ const AccountScreen = () => {
     }
   };
 
-  const handleLogout = async () => {
-    Alert.alert("Logout", "Sei sicuro di voler uscire?", [
-      {
-        text: "Annulla",
-        style: "cancel",
-      },
-      {
-        text: "Esci",
-        style: "destructive",
-        onPress: async () => {
-          await logout();
-          router.replace("/(auth)/login");
-        },
-      },
-    ]);
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  if (!user) {
+  if (loading) {
     return (
       <SafeAreaView
-        edges={["top", "left", "right"]}
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -167,16 +179,51 @@ const AccountScreen = () => {
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
           <Text variant="secondary" style={styles.loadingText}>
-            Caricamento...
+            Caricamento profilo...
           </Text>
         </View>
       </SafeAreaView>
     );
   }
 
+  if (error || !user) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? "#000000" : "#ffffff"},
+        ]}
+      >
+        <View style={styles.errorContainer}>
+          <Text style={styles.emptyIcon}>👤</Text>
+          <Text
+            style={[styles.errorTitle, {color: isDark ? "#ffffff" : "#111827"}]}
+          >
+            {error ? "Errore nel caricamento" : "Utente non trovato"}
+          </Text>
+          <Text variant="secondary" style={styles.errorText}>
+            {error?.message ||
+              "L'utente che stai cercando non esiste o è stato rimosso"}
+          </Text>
+          <Button onPress={() => router.back()} style={styles.backButton}>
+            Torna indietro
+          </Button>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   return (
     <SafeAreaView
-      edges={["top", "left", "right"]}
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -255,19 +302,19 @@ const AccountScreen = () => {
           <Pressable
             style={[
               styles.tab,
-              activeTab === "profile" && {
+              activeTab === "favorites" && {
                 borderBottomWidth: 2,
                 borderBottomColor: isDark ? "#3b82f6" : "#2563eb",
               },
             ]}
-            onPress={() => setActiveTab("profile")}
+            onPress={() => setActiveTab("favorites")}
           >
             <Text
               style={[
                 styles.tabText,
                 {
                   color:
-                    activeTab === "profile"
+                    activeTab === "favorites"
                       ? isDark
                         ? "#3b82f6"
                         : "#2563eb"
@@ -277,7 +324,7 @@ const AccountScreen = () => {
                 },
               ]}
             >
-              👤 Profilo
+              ❤️ Preferiti ({favoriteCollections.length})
             </Text>
           </Pressable>
         </View>
@@ -316,105 +363,52 @@ const AccountScreen = () => {
             </View>
           )}
 
-          {activeTab === "profile" && (
+          {activeTab === "favorites" && (
             <View style={styles.section}>
-              {/* Info personali */}
-              <View
-                style={[
-                  styles.infoCard,
-                  {
-                    backgroundColor: isDark ? "#09090b" : "#ffffff",
-                    borderColor: isDark ? "#27272a" : "#e5e7eb",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.infoCardTitle,
-                    {color: isDark ? "#ffffff" : "#111827"},
-                  ]}
+              {favoriteCollections.length > 0 ? (
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.horizontalScroll}
                 >
-                  Informazioni Personali
-                </Text>
-
-                <View style={styles.infoItem}>
-                  <Text variant="muted" style={styles.infoLabel}>
-                    Email
-                  </Text>
-                  <Text
-                    style={[
-                      styles.infoValue,
-                      {color: isDark ? "#ffffff" : "#111827"},
-                    ]}
-                  >
-                    {user.email}
+                  {favoriteCollections.map((collection) => (
+                    <View
+                      key={collection.slug}
+                      style={styles.collectionCardWrapper}
+                    >
+                      <CollectionCard
+                        collection={{
+                          slug: collection.slug,
+                          name: collection.name,
+                          description: collection.description,
+                          isFeatured: collection.isFeatured,
+                        }}
+                        width={280}
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
+              ) : (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyIcon}>❤️</Text>
+                  <Text variant="secondary" style={styles.emptyText}>
+                    Nessuna collezione nei preferiti
                   </Text>
                 </View>
-
-                {user.role && (
-                  <View style={styles.infoItem}>
-                    <Text variant="muted" style={styles.infoLabel}>
-                      Ruolo
-                    </Text>
-                    <Text
-                      style={[
-                        styles.infoValue,
-                        {color: isDark ? "#ffffff" : "#111827"},
-                      ]}
-                    >
-                      {user.role}
-                    </Text>
-                  </View>
-                )}
-
-                {user.type && (
-                  <View style={styles.infoItem}>
-                    <Text variant="muted" style={styles.infoLabel}>
-                      Tipo Account
-                    </Text>
-                    <Text
-                      style={[
-                        styles.infoValue,
-                        {color: isDark ? "#ffffff" : "#111827"},
-                      ]}
-                    >
-                      {user.type}
-                    </Text>
-                  </View>
-                )}
-
-                <View style={styles.infoItem}>
-                  <Text variant="muted" style={styles.infoLabel}>
-                    Email Verificata
-                  </Text>
-                  <Text
-                    style={[
-                      styles.infoValue,
-                      {color: user.emailVerified ? "#10b981" : "#f59e0b"},
-                    ]}
-                  >
-                    {user.emailVerified ? "✓ Verificata" : "✗ Non verificata"}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Logout button */}
-              <View style={styles.logoutSection}>
-                <Button
-                  onPress={handleLogout}
-                  variant="outline"
-                  style={[
-                    styles.logoutButton,
-                    {borderColor: isDark ? "#dc2626" : "#ef4444"},
-                  ]}
-                >
-                  <Text style={{color: isDark ? "#dc2626" : "#ef4444"}}>
-                    🚪 Logout
-                  </Text>
-                </Button>
-              </View>
+              )}
             </View>
           )}
+        </View>
+
+        {/* Back Button */}
+        <View style={styles.footer}>
+          <Button
+            onPress={() => router.back()}
+            variant="outline"
+            style={styles.backButtonBottom}
+          >
+            ← Torna indietro
+          </Button>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -454,6 +448,9 @@ const styles = StyleSheet.create({
   emptyIcon: {
     fontSize: 64,
     marginBottom: 16,
+  },
+  backButton: {
+    marginTop: 16,
   },
   headerContainer: {
     alignItems: "center",
@@ -524,6 +521,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
     alignItems: "center",
   },
+  horizontalScroll: {
+    gap: 12,
+  },
+  collectionCardWrapper: {
+    width: 280,
+  },
   emptyContainer: {
     alignItems: "center",
     paddingVertical: 40,
@@ -532,36 +535,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
   },
-  infoCard: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 20,
-    marginBottom: 20,
-  },
-  infoCardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  infoItem: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
-  },
-  infoLabel: {
-    fontSize: 12,
-    marginBottom: 4,
-    textTransform: "uppercase",
-  },
-  infoValue: {
-    fontSize: 16,
-  },
-  logoutSection: {
+  footer: {
+    paddingHorizontal: 20,
     paddingBottom: 40,
   },
-  logoutButton: {
+  backButtonBottom: {
     marginTop: 20,
   },
 });
 
-export default AccountScreen;
+export default UserProfileScreen;
+
