@@ -5,17 +5,17 @@ import {router} from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
+  Image,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
-  Pressable,
 } from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useQuery} from "@apollo/client/react";
 import {graphql} from "@/graphql/generated";
 import type {GetHomepageQuery} from "@/graphql/generated/graphql";
 import {ItemCard} from "@/components/item-card";
-import {ArticleCard} from "@/components/article-card";
 
 const GET_HOMEPAGE = graphql(`
   query GetHomepage {
@@ -201,7 +201,41 @@ const ExploreScreen = () => {
             </View>
             <View style={styles.articlesGrid}>
               {homepage.latestArticles.slice(0, 4).map((article: any) => (
-                <ArticleCard key={article.id} article={article} />
+                <Pressable
+                  key={article.id}
+                  style={[
+                    styles.articleCard,
+                    {backgroundColor: isDark ? "#09090b" : "#ffffff"},
+                  ]}
+                  onPress={() => router.push(`/articles/${article.slug}`)}
+                >
+                  {article.cover && (
+                    <Image
+                      source={{uri: article.cover}}
+                      style={styles.articleImage}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <View style={styles.articleContent}>
+                    <Text style={styles.articleTitle} numberOfLines={2}>
+                      {article.title}
+                    </Text>
+                    {article.excerpt && (
+                      <Text
+                        variant="secondary"
+                        style={styles.articleExcerpt}
+                        numberOfLines={2}
+                      >
+                        {article.excerpt}
+                      </Text>
+                    )}
+                    {article.author && (
+                      <Text variant="muted" style={styles.articleAuthor}>
+                        di {article.author.name}
+                      </Text>
+                    )}
+                  </View>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -396,6 +430,36 @@ const styles = StyleSheet.create({
   articlesGrid: {
     paddingHorizontal: 20,
     gap: 16,
+  },
+  articleCard: {
+    borderRadius: 16,
+    overflow: "hidden",
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  articleImage: {
+    width: "100%",
+    height: 180,
+  },
+  articleContent: {
+    padding: 16,
+  },
+  articleTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  articleExcerpt: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 8,
+  },
+  articleAuthor: {
+    fontSize: 12,
   },
   // Collection Cards
   collectionCard: {

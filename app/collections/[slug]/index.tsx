@@ -1,6 +1,6 @@
-import {useQuery} from "@apollo/client/react";
-import {router, useLocalSearchParams} from "expo-router";
-import React from "react";
+import {useQuery, useMutation} from "@apollo/client/react";
+import {router, useLocalSearchParams, Stack} from "expo-router";
+import React, {useState} from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -17,6 +17,16 @@ import {Button} from "@/components/ui/button";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import {CollectionCard} from "@/components/collection-card";
 
+const TOGGLE_COLLECTION_FAVORITE = graphql(`
+  mutation ToggleCollectionFavorite($collectionSlug: String!) {
+    toggleCollectionFavorite(collectionSlug: $collectionSlug) {
+      isFavorite
+      success
+      message
+    }
+  }
+`);
+
 const GET_COLLECTION = graphql(`
   query GetCollection($slug: String!, $page: Int, $limit: Int) {
     collection(slug: $slug) {
@@ -24,6 +34,7 @@ const GET_COLLECTION = graphql(`
       name
       description
       isFeatured
+      isFavorite
       collections {
         slug
         name
@@ -78,66 +89,103 @@ const CollectionDetailScreen = () => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const {slug} = useLocalSearchParams<{slug: string}>();
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  const {data, loading, error} = useQuery<GetCollectionQuery>(GET_COLLECTION, {
-    variables: {
-      slug: slug as string,
-      page: 1,
-      limit: 50,
-    },
-    skip: !slug,
-    fetchPolicy: "cache-and-network",
-  });
+  const {data, loading, error, refetch} = useQuery<GetCollectionQuery>(
+    GET_COLLECTION,
+    {
+      variables: {
+        slug: slug as string,
+        page: 1,
+        limit: 50,
+      },
+      skip: !slug,
+      fetchPolicy: "cache-and-network",
+    }
+  );
+
+  const [toggleFavorite, {loading: toggleLoading}] = useMutation(
+    TOGGLE_COLLECTION_FAVORITE
+  );
 
   const collection = data?.collection;
   const events = collection?.events?.data || [];
   const subcollections = collection?.collections || [];
 
+  // Update local isFavorite state when data loads
+  React.useEffect(() => {
+    if (collection?.isFavorite !== undefined) {
+      setIsFavorite(collection.isFavorite);
+    }
+  }, [collection?.isFavorite]);
+
+  const handleToggleFavorite = async () => {
+    if (!slug) return;
+
+    try {
+      const {data: result} = await toggleFavorite({
+        variables: {collectionSlug: slug as string},
+      });
+
+      if (result?.toggleCollectionFavorite?.success) {
+        setIsFavorite(result.toggleCollectionFavorite.isFavorite);
+        refetch();
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
+
   if (loading) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text variant="secondary" style={styles.loadingText}>
-            Caricamento collezione...
-          </Text>
-        </View>
-      </SafeAreaView>
+      <>
+        <SafeAreaView
+        >
+          <Stack.Screen options={{title: "Collezione"}} />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator
+              size="large"
+              color={isDark ? "#3b82f6" : "#2563eb"}
+            />
+            <Text variant="secondary" style={styles.loadingText}>
+              Caricamento collezione...
+            </Text>
+          </View>
+        </SafeAreaView>
+      </>
     );
   }
 
   if (error || !collection) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.emptyIcon}>🗂️</Text>
-          <Text
-            style={[styles.errorTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          >
-            {error ? "Errore nel caricamento" : "Collezione non trovata"}
-          </Text>
-          <Text variant="secondary" style={styles.errorText}>
-            {error?.message ||
-              "La collezione che stai cercando non esiste o è stata rimossa"}
-          </Text>
-          <Button onPress={() => router.back()} style={styles.backButton}>
-            Torna indietro
-          </Button>
-        </View>
-      </SafeAreaView>
+      <>
+        <Stack.Screen options={{title: "Collezione"}} />
+        <SafeAreaView
+          style={[
+            styles.container,
+            {backgroundColor: isDark ? "#000000" : "#ffffff"},
+          ]}
+        >
+          <View style={styles.errorContainer}>
+            <Text style={styles.emptyIcon}>🗂️</Text>
+            <Text
+              style={[
+                styles.errorTitle,
+                {color: isDark ? "#ffffff" : "#111827"},
+              ]}
+            >
+              {error ? "Errore nel caricamento" : "Collezione non trovata"}
+            </Text>
+            <Text variant="secondary" style={styles.errorText}>
+              {error?.message ||
+                "La collezione che stai cercando non esiste o è stata rimossa"}
+            </Text>
+            <Button onPress={() => router.back()} style={styles.backButton}>
+              Torna indietro
+            </Button>
+          </View>
+        </SafeAreaView>
+      </>
     );
   }
 
@@ -186,13 +234,35 @@ const CollectionDetailScreen = () => {
 
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <>
+      <Stack.Screen
+        options={{
+          title: collection.name,
+          headerLargeTitle: true,
+          headerRight: () => (
+            <Pressable
+              onPress={handleToggleFavorite}
+              disabled={toggleLoading}
+              style={styles.headerButton}
+            >
+              {toggleLoading ? (
+                <ActivityIndicator size="small" color={isDark ? "#3b82f6" : "#2563eb"} />
+              ) : (
+                <Text style={styles.heartIcon}>
+                  {isFavorite ? "❤️" : "🤍"}
+                </Text>
+              )}
+            </Pressable>
+          ),
+        }}
+      />
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? "#000000" : "#ffffff"},
+        ]}
+      >
+        <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.headerContainer}>
           <Text style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}>
@@ -225,7 +295,6 @@ const CollectionDetailScreen = () => {
                 <View key={collection.slug} style={styles.collectionCardWrapper}>
                   <CollectionCard
                     collection={{
-                      id: collection.slug,
                       slug: collection.slug,
                       name: collection.name,
                       description: collection.description,
@@ -277,6 +346,7 @@ const CollectionDetailScreen = () => {
         </View>
       </ScrollView>
     </SafeAreaView>
+    </>
   );
 };
 
@@ -404,6 +474,13 @@ const styles = StyleSheet.create({
   },
   backButtonBottom: {
     marginTop: 20,
+  },
+  headerButton: {
+    padding: 8,
+    marginRight: 8,
+  },
+  heartIcon: {
+    fontSize: 24,
   },
 });
 
