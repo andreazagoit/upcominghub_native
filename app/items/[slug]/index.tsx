@@ -1,21 +1,17 @@
 import {useQuery} from "@apollo/client/react";
 import {router, Stack, useLocalSearchParams} from "expo-router";
-import React from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import React, {useState} from "react";
+import {Pressable, ScrollView, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetItemQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
 import {Image} from "@/components/ui/image";
 import {Card} from "@/components/ui/card";
+import {BottomSheet} from "@/components/ui/bottom-sheet";
 import {EventResumeCard} from "@/components/event-resume-card";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 
 const GET_ITEM = graphql(`
   query GetItem($slug: String!) {
@@ -65,11 +61,10 @@ const GET_ITEM = graphql(`
 `);
 
 const ItemDetailScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const {slug} = useLocalSearchParams<{slug: string}>();
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
-  const {data, loading, error} = useQuery<GetItemQuery>(GET_ITEM, {
+  const {data, loading, error, refetch} = useQuery<GetItemQuery>(GET_ITEM, {
     variables: {slug: slug as string},
     skip: !slug,
     fetchPolicy: "cache-and-network",
@@ -91,564 +86,315 @@ const ItemDetailScreen = () => {
 
   if (loading) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text variant="secondary" style={styles.loadingText}>
-            Caricamento item...
-          </Text>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <Loading message="Caricamento item..." />
       </View>
     );
   }
 
   if (error || !item) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.emptyIcon}>📦</Text>
-          <Text
-            style={[styles.errorTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          >
-            {error ? "Errore nel caricamento" : "Item non trovato"}
-          </Text>
-          <Text variant="secondary" style={styles.errorText}>
-            {error?.message ||
-              "L'item che stai cercando non esiste o è stato rimosso"}
-          </Text>
-          <Button onPress={() => router.back()} style={styles.backButton}>
-            Torna indietro
-          </Button>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <ErrorView
+          message={error?.message || "L'item che stai cercando non esiste o è stato rimosso"}
+          onRetry={() => refetch()}
+        />
       </View>
     );
   }
 
   return (
-        <>
-          <Stack.Screen options={{title: item.name}} />
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Hero Section con sfondo grigio scuro */}
-        <View
-          style={[
-            styles.heroSection,
-            {backgroundColor: isDark ? "#09090b" : "#ffffff"},
-          ]}
-        >
-          {/* Cover Image */}
-          {item.cover && (
-            <View style={styles.coverWrapper}>
-              <Image uri={item.cover} style={styles.coverImage} />
+    <>
+      <Stack.Screen options={{title: item.name}} />
+      <View className="flex-1 bg-white dark:bg-black">
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Hero Section */}
+          <View className="mb-6 p-5 bg-white dark:bg-zinc-950">
+            {/* Cover Image */}
+            {item.cover && (
+              <View className="w-full rounded-2xl overflow-hidden">
+                <Image uri={item.cover} style={{width: "100%", aspectRatio: 1}} />
+              </View>
+            )}
+
+            {/* Content Hero */}
+            <View className="pt-5">
+              <Text className="text-3xl font-bold mb-2 leading-9">
+                {item.name}
+              </Text>
+              {item.description && (
+                <Text className="text-base leading-6 mb-4 text-gray-500 dark:text-gray-400">
+                  {item.description}
+                </Text>
+              )}
+
+              {/* Author Info */}
+              {item.author && (
+                <Pressable
+                  className="flex-row items-center gap-3 mt-2"
+                  onPress={() =>
+                    item.author?.slug && router.push(`/users/${item.author.slug}`)
+                  }
+                >
+                  {item.author.image && (
+                    <Image 
+                      uri={item.author.image} 
+                      style={{width: 44, height: 44, borderRadius: 22}} 
+                    />
+                  )}
+                  <View>
+                    <Text className="text-xs mb-0.5 text-gray-500 dark:text-gray-400">
+                      Creato da
+                    </Text>
+                    <Text className="text-sm font-semibold">
+                      {item.author.name}
+                    </Text>
+                  </View>
+                </Pressable>
+              )}
+            </View>
+          </View>
+
+          {/* Disponibilità Card */}
+          {firstEvent && eventDate && (
+            <View className="mb-6 px-5">
+              <Card className="p-5">
+                <View className="flex-row items-center mb-4 gap-3">
+                  <View className="w-10 h-10 rounded-full justify-center items-center bg-blue-100 dark:bg-blue-600">
+                    <Text className="text-xl">📅</Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold mb-0.5">
+                      Disponibilità
+                    </Text>
+                    <Text variant="secondary" className="text-xs">
+                      {isAvailable ? "Disponibile dal" : "In arrivo"}
+                    </Text>
+                  </View>
+                </View>
+                <View className="gap-2">
+                  <View 
+                    className={`self-start px-3 py-1.5 rounded-lg ${
+                      isAvailable 
+                        ? "bg-blue-600 dark:bg-blue-600" 
+                        : "bg-gray-500 dark:bg-gray-600"
+                    }`}
+                  >
+                    <Text className="text-xs font-semibold text-white">
+                      {isAvailable ? "Disponibile" : "Prossimamente"}
+                    </Text>
+                  </View>
+                  <Text className="text-base font-semibold">
+                    {eventDate.toLocaleDateString("it-IT", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </Text>
+                  {firstEvent.name && (
+                    <Text variant="muted" className="text-xs">
+                      {firstEvent.name}
+                    </Text>
+                  )}
+                  {item.events && item.events.length > 1 && (
+                    <Text variant="muted" className="text-xs">
+                      + {item.events.length - 1} altr
+                      {item.events.length - 1 === 1 ? "o" : "i"} event
+                      {item.events.length - 1 === 1 ? "o" : "i"}
+                    </Text>
+                  )}
+                </View>
+              </Card>
             </View>
           )}
 
-          {/* Content Hero */}
-          <View style={styles.heroContent}>
-            <Text
-              style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}
-            >
-              {item.name}
-            </Text>
-            {item.description && (
-              <Text
-                style={[
-                  styles.description,
-                  {color: isDark ? "#e5e7eb" : "#6b7280"},
-                ]}
-              >
-                {item.description}
-              </Text>
-            )}
-
-            {/* Author Info */}
-            {item.author && (
-              <Pressable
-                style={styles.authorContainer}
-                onPress={() =>
-                  item.author?.slug && router.push(`/users/${item.author.slug}`)
-                }
-              >
-                {item.author.image && (
-                  <Image uri={item.author.image} style={styles.authorAvatar} />
-                )}
+          {/* Informazioni Card */}
+          <View className="mb-6 px-5">
+            <Card className="p-5">
+              <View className="flex-row items-center mb-4 gap-3">
+                <View className="w-10 h-10 rounded-full justify-center items-center bg-purple-100 dark:bg-purple-600">
+                  <Text className="text-xl">📦</Text>
+                </View>
                 <View>
-                  <Text
-                    style={[
-                      styles.authorLabel,
-                      {color: isDark ? "#9ca3af" : "#6b7280"},
-                    ]}
-                  >
-                    Creato da
+                  <Text className="text-base font-semibold mb-0.5">
+                    Informazioni
                   </Text>
-                  <Text
-                    style={[
-                      styles.authorName,
-                      {color: isDark ? "#ffffff" : "#111827"},
-                    ]}
-                  >
-                    {item.author.name}
-                  </Text>
-                </View>
-              </Pressable>
-            )}
-          </View>
-        </View>
-
-        {/* Disponibilità Card - Se c'è almeno un evento */}
-        {firstEvent && eventDate && (
-          <View style={styles.section}>
-            <Card style={styles.availabilityCard}>
-              <View style={styles.availabilityHeader}>
-                <View
-                  style={[
-                    styles.iconCircle,
-                    {backgroundColor: isDark ? "#3b82f6" : "#dbeafe"},
-                  ]}
-                >
-                  <Text style={styles.iconText}>📅</Text>
-                </View>
-                <View style={styles.availabilityHeaderText}>
-                  <Text
-                    style={[
-                      styles.availabilityTitle,
-                      {color: isDark ? "#ffffff" : "#111827"},
-                    ]}
-                  >
-                    Disponibilità
-                  </Text>
-                  <Text variant="secondary" style={styles.availabilitySubtitle}>
-                    {isAvailable ? "Disponibile dal" : "In arrivo"}
+                  <Text variant="secondary" className="text-xs">
+                    Dettagli item
                   </Text>
                 </View>
               </View>
-              <View style={styles.availabilityContent}>
-                <View
-                  style={[
-                    styles.statusBadge,
-                    {
-                      backgroundColor: isAvailable
-                        ? isDark
-                          ? "#3b82f6"
-                          : "#2563eb"
-                        : isDark
-                        ? "#6b7280"
-                        : "#9ca3af",
-                    },
-                  ]}
-                >
-                  <Text style={styles.statusText}>
-                    {isAvailable ? "Disponibile" : "Prossimamente"}
+
+              <View className="gap-4">
+                {/* Collections */}
+                {item.collections && item.collections.length > 0 && (
+                  <View className="gap-2">
+                    <Text variant="muted" className="text-xs">
+                      Collezioni
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {item.collections.map((collection) => (
+                        <Pressable
+                          key={collection.id}
+                          className="px-2.5 py-1.5 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
+                          onPress={() =>
+                            router.push(`/collections/${collection.slug}`)
+                          }
+                        >
+                          <Text className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                            {collection.name}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Date Created */}
+                <View className="gap-2">
+                  <Text variant="muted" className="text-xs">
+                    Creato
+                  </Text>
+                  <Text variant="secondary" className="text-sm font-medium">
+                    {new Date(item.createdAt).toLocaleDateString("it-IT", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </Text>
                 </View>
-                <Text
-                  style={[
-                    styles.eventDateLarge,
-                    {color: isDark ? "#ffffff" : "#111827"},
-                  ]}
-                >
-                  {eventDate.toLocaleDateString("it-IT", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </Text>
-                {firstEvent.name && (
-                  <Text variant="muted" style={styles.eventName}>
-                    {firstEvent.name}
+
+                {/* Last Updated */}
+                <View className="gap-2">
+                  <Text variant="muted" className="text-xs">
+                    Ultimo aggiornamento
                   </Text>
-                )}
-                {item.events && item.events.length > 1 && (
-                  <Text variant="muted" style={styles.moreEvents}>
-                    + {item.events.length - 1} altr
-                    {item.events.length - 1 === 1 ? "o" : "i"} event
-                    {item.events.length - 1 === 1 ? "o" : "i"}
+                  <Text variant="secondary" className="text-sm font-medium">
+                    {new Date(item.updatedAt).toLocaleDateString("it-IT", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </Text>
-                )}
+                </View>
               </View>
             </Card>
           </View>
-        )}
 
-        {/* Informazioni Card */}
-        <View style={styles.section}>
-          <Card style={styles.infoCard}>
-            <View style={styles.infoCardHeader}>
-              <View
-                style={[
-                  styles.iconCircle,
-                  {backgroundColor: isDark ? "#8b5cf6" : "#ede9fe"},
-                ]}
-              >
-                <Text style={styles.iconText}>📦</Text>
-              </View>
+          {/* Events Section */}
+          {item.events && item.events.length > 0 && (
+            <View className="mb-6 px-5">
+              <Text className="text-xl font-semibold mb-4">
+                Eventi
+              </Text>
               <View>
-                <Text
-                  style={[
-                    styles.infoCardTitle,
-                    {color: isDark ? "#ffffff" : "#111827"},
-                  ]}
-                >
-                  Informazioni
-                </Text>
-                <Text variant="secondary" style={styles.infoCardSubtitle}>
-                  Dettagli item
-                </Text>
+                {item.events.map((event) => (
+                  <EventResumeCard 
+                    key={event.id} 
+                    event={event}
+                    onPress={() => setSelectedEvent(event)}
+                  />
+                ))}
               </View>
             </View>
+          )}
 
-            <View style={styles.infoCardContent}>
-              {/* Collections */}
-              {item.collections && item.collections.length > 0 && (
-                <View style={styles.infoRow}>
-                  <Text variant="muted" style={styles.infoLabel}>
-                    Collezioni
-                  </Text>
-                  <View style={styles.collectionsGrid}>
-                    {item.collections.map((collection) => (
-                      <Pressable
-                        key={collection.id}
-                        style={[
-                          styles.collectionTag,
-                          {
-                            backgroundColor: isDark ? "#374151" : "#f3f4f6",
-                            borderColor: isDark ? "#4b5563" : "#e5e7eb",
-                          },
-                        ]}
-                        onPress={() =>
-                          router.push(`/collections/${collection.slug}`)
-                        }
-                      >
-                        <Text
-                          style={[
-                            styles.collectionText,
-                            {color: isDark ? "#d1d5db" : "#374151"},
-                          ]}
-                        >
-                          {collection.name}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              )}
-
-              {/* Date Created */}
-              <View style={styles.infoRow}>
-                <Text variant="muted" style={styles.infoLabel}>
-                  Creato
-                </Text>
-                <Text variant="secondary" style={styles.infoValue}>
-                  {new Date(item.createdAt).toLocaleDateString("it-IT", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </Text>
-              </View>
-
-              {/* Last Updated */}
-              <View style={styles.infoRow}>
-                <Text variant="muted" style={styles.infoLabel}>
-                  Ultimo aggiornamento
-                </Text>
-                <Text variant="secondary" style={styles.infoValue}>
-                  {new Date(item.updatedAt).toLocaleDateString("it-IT", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </Text>
-              </View>
+          {/* Content */}
+          {item.content && (
+            <View className="mb-6 px-5">
+              <Text className="text-xl font-semibold mb-4">
+                Descrizione
+              </Text>
+              <Text className="text-base leading-7 text-gray-700 dark:text-gray-300">
+                {item.content}
+              </Text>
             </View>
-          </Card>
-        </View>
+          )}
 
-        {/* Events Section */}
-        {item.events && item.events.length > 0 && (
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                {color: isDark ? "#ffffff" : "#111827"},
-              ]}
+          {/* Back Button */}
+          <View className="px-5 py-8">
+            <Button
+              onPress={() => router.back()}
+              variant="outline"
+              className="mt-2"
             >
-              Eventi
-            </Text>
-            <View style={styles.eventsContainer}>
-              {item.events.map((event) => (
-                <EventResumeCard key={event.id} event={event} />
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Content */}
-        {item.content && (
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                {color: isDark ? "#ffffff" : "#111827"},
-              ]}
-            >
-              Descrizione
-            </Text>
-            <Text
-              style={[
-                styles.contentText,
-                {color: isDark ? "#e5e7eb" : "#374151"},
-              ]}
-            >
-              {item.content}
-            </Text>
-          </View>
-        )}
-
-        {/* Back Button */}
-        <View style={styles.footer}>
-          <Button
-            onPress={() => router.back()}
-            variant="outline"
-            style={styles.backButtonBottom}
-          >
-            ← Torna agli items
-          </Button>
+              ← Torna agli items
+            </Button>
           </View>
         </ScrollView>
       </View>
+
+      {/* Bottom Sheet per dettagli evento */}
+      <BottomSheet 
+        isOpen={!!selectedEvent} 
+        onOpenChange={(isOpen) => !isOpen && setSelectedEvent(null)}
+      >
+        {selectedEvent && (
+          <View className="p-5">
+            {/* Header */}
+            <View className="mb-4">
+              <Text className="text-2xl font-bold mb-2">
+                {selectedEvent.name || "Evento"}
+              </Text>
+              {selectedEvent.description && (
+                <Text className="text-sm text-gray-600 dark:text-gray-400">
+                  {selectedEvent.description}
+                </Text>
+              )}
+            </View>
+
+            {/* Cover Image */}
+            {selectedEvent.cover && (
+              <View className="mb-4 rounded-xl overflow-hidden">
+                <Image 
+                  uri={selectedEvent.cover} 
+                  style={{width: "100%", aspectRatio: 16/9}} 
+                />
+              </View>
+            )}
+
+            {/* Data evento */}
+            {selectedEvent.yearStart && selectedEvent.monthStart && selectedEvent.dayStart && (
+              <View className="mb-4">
+                <Text variant="muted" className="text-xs mb-1">Data</Text>
+                <Text className="text-base font-semibold">
+                  📅 {selectedEvent.dayStart}/{selectedEvent.monthStart}/{selectedEvent.yearStart}
+                  {selectedEvent.timeStart && ` - ${selectedEvent.timeStart}`}
+                </Text>
+              </View>
+            )}
+
+            {/* Availability */}
+            {selectedEvent.availability && selectedEvent.availability.length > 0 && (
+              <View className="mb-4">
+                <Text variant="muted" className="text-xs mb-2">Disponibile su</Text>
+                <View className="gap-2">
+                  {selectedEvent.availability.map((avail: any) => (
+                    <Pressable
+                      key={avail.id}
+                      className="flex-row items-center justify-between p-3 rounded-lg bg-gray-100 dark:bg-gray-800"
+                      onPress={() => avail.link && console.log('Open link:', avail.link)}
+                    >
+                      <Text className="font-medium">{avail.platform}</Text>
+                      <Text className="text-blue-600 dark:text-blue-500">→</Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Chiudi */}
+            <Button 
+              onPress={() => setSelectedEvent(null)}
+              variant="outline"
+            >
+              Chiudi
+            </Button>
+          </View>
+        )}
+      </BottomSheet>
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  backButton: {
-    marginTop: 16,
-  },
-  // Hero Section
-  heroSection: {
-    marginBottom: 24,
-    padding: 20,
-  },
-  coverWrapper: {
-    width: "100%",
-    borderRadius: 16,
-    overflow: "hidden",
-  },
-  coverImage: {
-    width: "100%",
-    aspectRatio: 1,
-  },
-  heroContent: {
-    paddingTop: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
-    lineHeight: 36,
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
-  },
-  authorContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginTop: 8,
-  },
-  authorAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-  },
-  authorLabel: {
-    fontSize: 12,
-    marginBottom: 2,
-  },
-  authorName: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  section: {
-    marginBottom: 24,
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  // Availability Card
-  availabilityCard: {
-    padding: 20,
-  },
-  availabilityHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-    gap: 12,
-  },
-  iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconText: {
-    fontSize: 20,
-  },
-  availabilityHeaderText: {
-    flex: 1,
-  },
-  availabilityTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  availabilitySubtitle: {
-    fontSize: 13,
-  },
-  availabilityContent: {
-    gap: 8,
-  },
-  statusBadge: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  statusText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#ffffff",
-  },
-  eventDateLarge: {
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  eventName: {
-    fontSize: 12,
-  },
-  moreEvents: {
-    fontSize: 12,
-  },
-  // Info Card
-  infoCard: {
-    padding: 20,
-  },
-  infoCardHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 16,
-    gap: 12,
-  },
-  infoCardTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 2,
-  },
-  infoCardSubtitle: {
-    fontSize: 13,
-  },
-  infoCardContent: {
-    gap: 16,
-  },
-  infoRow: {
-    gap: 8,
-  },
-  infoLabel: {
-    fontSize: 12,
-  },
-  infoValue: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  collectionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  collectionTag: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  collectionText: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  // Events
-  eventsContainer: {
-    gap: 0,
-  },
-  // Content
-  contentText: {
-    fontSize: 16,
-    lineHeight: 26,
-  },
-  footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 32,
-  },
-  backButtonBottom: {
-    marginTop: 8,
-  },
-});
 
 export default ItemDetailScreen;
