@@ -6,8 +6,13 @@ export default function Layout() {
       <Stack.Screen
         name="index"
         options={{
-          title: "Explore",
+          title: "Search",
           headerShown: false,
+          headerSearchBarOptions: {
+            placement: 'automatic',
+            placeholder: 'Search',
+            onChangeText: () => {},
+          },
         }}
       />
     </Stack>

@@ -30,7 +30,7 @@ export const Image: React.FC<CustomImageProps> = ({ uri, style }) => {
     );
   }
 
-  // ExpoImage non supporta className, quindi lo convertiamo in style se necessario
+  // ExpoImage non supporta className, usa solo style
   return (
     <ExpoImage
       source={{ uri }}
@@ -38,11 +38,7 @@ export const Image: React.FC<CustomImageProps> = ({ uri, style }) => {
       contentFit="cover"
       transition={200}
       cachePolicy="memory-disk"
-      onError={(error) => {
-        console.log('Image error:', uri, error);
-        setHasError(true);
-      }}
-      onLoad={() => console.log('Image loaded:', uri)}
+      onError={() => setHasError(true)}
     />
   );
 };

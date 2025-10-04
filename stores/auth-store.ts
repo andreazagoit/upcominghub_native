@@ -26,13 +26,14 @@ interface AuthState {
   }>;
   signOut: () => Promise<void>;
   checkAuthState: () => Promise<void>;
+  loadUser: () => Promise<void>;
   setLoading: (loading: boolean) => void;
+  setAccessToken: (token: string) => Promise<void>;
 
   // Internal actions
   _setTokens: (
     accessToken: string,
-    refreshToken: string,
-    user: User
+    refreshToken: string
   ) => Promise<void>;
 }
 
@@ -62,16 +63,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (result.success && result.data?.accessToken) {
         console.log("✅ Login successful");
 
-        // Salva i token usando l'azione interna
+        // Salva solo i token
         await get()._setTokens(
           result.data.accessToken,
-          result.data.refreshToken,
-          result.data.user
+          result.data.refreshToken
         );
+
+        // Carica i dati utente dal backend
+        await get().loadUser();
 
         return {
           success: true,
-          user: result.data.user,
+          user: get().user || result.data.user,
         };
       } else {
         console.log("❌ Login failed:", result.message);
@@ -110,11 +113,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
       }
 
-      // Rimuovi tokens e user data
+      // Rimuovi solo i tokens
       await Promise.all([
         storage.removeItem("accessToken"),
         storage.removeItem("refreshToken"),
-        storage.removeItem("user"),
       ]);
 
       set({
@@ -131,35 +133,106 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  _setTokens: async (accessToken: string, refreshToken: string, user: User) => {
+  _setTokens: async (accessToken: string, refreshToken: string) => {
     try {
-      console.log("💾 Saving authentication data to storage...");
+      console.log("💾 Saving tokens to storage...");
 
-      // Save to storage
+      // Salva solo i tokens
       await Promise.all([
         storage.setItem("accessToken", accessToken),
         storage.setItem("refreshToken", refreshToken),
-        storage.setItem("user", JSON.stringify(user)),
       ]);
 
-      console.log("✅ Authentication data saved successfully");
+      console.log("✅ Tokens saved successfully");
 
       // Update state
       set({
-        isAuthenticated: true,
-        user,
         accessToken,
         refreshToken,
         isLoading: false,
       });
-
-      console.log("🎉 User logged in and state updated:", {
-        name: user.name,
-        email: user.email,
-      });
     } catch (error) {
-      console.error("💥 Error saving auth data:", error);
+      console.error("💥 Error saving tokens:", error);
       set({isLoading: false});
+    }
+  },
+
+  loadUser: async () => {
+    try {
+      let {accessToken, refreshToken} = get();
+      
+      if (!accessToken) {
+        console.log("❌ No access token, cannot load user");
+        set({isAuthenticated: false, user: null, isLoading: false});
+        return;
+      }
+
+      console.log("📡 Loading user from backend...");
+
+      let response = await fetch(`${BASE_URL}/api/auth/credentials/me`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      let result = await response.json();
+
+      // Se il token è scaduto, prova a rinnovarlo
+      if (!result.success && result.code === 'UNAUTHORIZED' && refreshToken) {
+        console.log("🔄 Token scaduto, tentativo di refresh...");
+        
+        const refreshResponse = await fetch(`${BASE_URL}/api/auth/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({refreshToken}),
+        });
+
+        const refreshResult = await refreshResponse.json();
+
+        if (refreshResult.success && refreshResult.data?.accessToken) {
+          console.log("✅ Token rinnovato con successo");
+          const newAccessToken = refreshResult.data.accessToken;
+          
+          // Salva il nuovo token
+          await storage.setItem("accessToken", newAccessToken);
+          set({accessToken: newAccessToken});
+          
+          // Riprova a caricare l'user con il nuovo token
+          response = await fetch(`${BASE_URL}/api/auth/credentials/me`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+          });
+
+          result = await response.json();
+        } else {
+          console.log("❌ Refresh token fallito, logout necessario");
+          await get().signOut();
+          return;
+        }
+      }
+
+      if (result.success && result.data?.user) {
+        console.log("✅ User loaded:", result.data.user.name);
+        
+        set({
+          isAuthenticated: true,
+          user: result.data.user,
+          isLoading: false,
+        });
+      } else {
+        console.log("❌ Failed to load user:", result.message);
+        set({isAuthenticated: false, user: null, isLoading: false});
+      }
+    } catch (error) {
+      console.error("💥 Error loading user:", error);
+      set({isAuthenticated: false, user: null, isLoading: false});
     }
   },
 
@@ -168,35 +241,28 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log("🔍 Checking auth state...");
       set({isLoading: true});
 
-      const [accessToken, refreshToken, userString] = await Promise.all([
+      const [accessToken, refreshToken] = await Promise.all([
         storage.getItem("accessToken"),
         storage.getItem("refreshToken"),
-        storage.getItem("user"),
       ]);
 
       console.log("📦 Tokens from storage:", {
         hasAccessToken: !!accessToken,
         hasRefreshToken: !!refreshToken,
-        hasUser: !!userString,
       });
 
-      if (accessToken && refreshToken && userString) {
-        const user = JSON.parse(userString);
-
-        console.log("✅ User found in storage:", {
-          name: user.name,
-          email: user.email,
-        });
+      if (accessToken && refreshToken) {
+        console.log("✅ Tokens found, loading user...");
 
         set({
-          isAuthenticated: true,
-          user,
           accessToken,
           refreshToken,
-          isLoading: false,
         });
+
+        // Carica i dati utente dal backend
+        await get().loadUser();
       } else {
-        console.log("❌ No valid auth data found");
+        console.log("❌ No valid tokens found");
         set({
           isAuthenticated: false,
           user: null,
@@ -219,5 +285,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   setLoading: (loading: boolean) => {
     set({isLoading: loading});
+  },
+
+  setAccessToken: async (token: string) => {
+    try {
+      console.log("💾 Updating access token...");
+      await storage.setItem("accessToken", token);
+      set({accessToken: token});
+      console.log("✅ Access token updated");
+    } catch (error) {
+      console.error("💥 Error updating access token:", error);
+    }
   },
 }));

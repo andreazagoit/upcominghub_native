@@ -5,7 +5,6 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   View,
@@ -14,6 +13,7 @@ import {graphql} from "@/graphql/generated";
 import type {GetItemsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
+import {Image} from "@/components/ui/image";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 
 const {width} = Dimensions.get("window");
@@ -76,9 +76,8 @@ const ItemsScreen = () => {
     >
       {item.cover && (
         <Image
-          source={{uri: item.cover}}
+          uri={item.cover}
           style={styles.itemCover}
-          resizeMode="cover"
         />
       )}
       <View style={styles.itemContent}>

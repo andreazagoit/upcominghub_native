@@ -36,9 +36,6 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, onPress}) => {
     }
   };
 
-  // Debug
-  console.log('ItemCard:', item.name, 'cover:', item.cover);
-
   return (
     <Card
       pressable={true}

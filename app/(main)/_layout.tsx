@@ -4,7 +4,7 @@ import {Badge, Icon, Label, NativeTabs} from "expo-router/unstable-native-tabs";
 
 export default function TabLayout() {
   return (
-    <NativeTabs blurEffect="systemChromeMaterial">
+    <NativeTabs blurEffect="systemChromeMaterial" minimizeBehavior="onScrollDown">
       <NativeTabs.Trigger name="explore">
         <Label>Explore</Label>
         <Icon
@@ -23,6 +23,13 @@ export default function TabLayout() {
           drawable="custom_android_drawable"
         />
         <Badge>10</Badge>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="search" role="search">
+        <Label>Search</Label>
+        <Icon
+          sf={{default: "magnifyingglass", selected: "magnifyingglass"}}
+          drawable="custom_android_drawable"
+        />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

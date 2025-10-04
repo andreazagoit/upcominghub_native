@@ -1,6 +1,7 @@
 import React from "react";
 import {View} from "react-native";
 import {Text} from "./text";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 interface PageHeaderProps {
   /**
@@ -40,8 +41,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   description,
   actions,
 }) => {
+  const insets = useSafeAreaInsets();
   return (
-    <View className="px-5 pt-4 pb-6">
+    <View className="px-5 pt-4 pb-6" style={{marginTop: insets.top}}>
       <View className="flex-row justify-between items-start">
         <View className="flex-1">
           <Text className="text-3xl font-bold mb-1">{title}</Text>

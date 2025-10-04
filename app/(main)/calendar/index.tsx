@@ -1,23 +1,15 @@
-import {Button} from "@/components/ui/button";
-import {Text} from "@/components/ui/text";
-import {Loading} from "@/components/ui/loading";
-import {ErrorView} from "@/components/ui/error-view";
-import {useColorScheme} from "@/hooks/use-color-scheme";
-import React from "react";
-import {
-  Dimensions,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
-import {useQuery} from "@apollo/client/react";
+import {useLazyQuery, useQuery} from "@apollo/client/react";
+import {router} from "expo-router";
+import React, {useState, useEffect} from "react";
+import {ScrollView, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetFavoriteCalendarQuery} from "@/graphql/generated/graphql";
-import {router} from "expo-router";
-
-const {width} = Dimensions.get("window");
+import {Text} from "@/components/ui/text";
+import {Button} from "@/components/ui/button";
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
+import {PageHeader} from "@/components/ui/page-header";
+import {EventResumeCard} from "@/components/event-resume-card";
 
 const GET_FAVORITE_CALENDAR = graphql(`
   query GetFavoriteCalendar($page: Int, $limit: Int) {
@@ -58,116 +50,149 @@ const GET_FAVORITE_CALENDAR = graphql(`
   }
 `);
 
+type Event = NonNullable<
+  NonNullable<GetFavoriteCalendarQuery["favoriteCalendarEvents"]>["data"]
+>[0];
+
+type Pagination = NonNullable<
+  GetFavoriteCalendarQuery["favoriteCalendarEvents"]
+>["pagination"];
+
 const CalendarScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-  // TODO: Implement month selection
-  // const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const limit = 20;
+  const [allEvents, setAllEvents] = useState<Event[]>([]);
+  const [pagination, setPagination] = useState<Pagination | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const {data, loading, error, refetch} = useQuery<GetFavoriteCalendarQuery>(
     GET_FAVORITE_CALENDAR,
     {
-      variables: {page: 1, limit: 100},
+      variables: {page: 1, limit},
       fetchPolicy: "cache-and-network",
     }
   );
 
-  const events = data?.favoriteCalendarEvents?.data || [];
-
-  // Generate calendar days for current month
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const daysInMonth = lastDay.getDate();
-  const startingDayOfWeek = firstDay.getDay();
-
-  const monthNames = [
-    "Gennaio",
-    "Febbraio",
-    "Marzo",
-    "Aprile",
-    "Maggio",
-    "Giugno",
-    "Luglio",
-    "Agosto",
-    "Settembre",
-    "Ottobre",
-    "Novembre",
-    "Dicembre",
-  ];
-
-  const dayNames = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"];
-
-  const calendarDays = [];
-
-  // Add empty cells for days before the first day of the month
-  for (let i = 0; i < startingDayOfWeek; i++) {
-    calendarDays.push(null);
-  }
-
-  // Add days of the month
-  for (let day = 1; day <= daysInMonth; day++) {
-    calendarDays.push(day);
-  }
-
-  // Helper to check if a day has events
-  const hasEventsOnDay = (day: number) => {
-    return events.some(
-      (event: any) =>
-        event.dayStart === day &&
-        event.monthStart === month + 1 &&
-        event.yearStart === year
-    );
-  };
-
-  // Get events for current month
-  const monthEvents = events.filter(
-    (event: any) => event.monthStart === month + 1 && event.yearStart === year
+  const [fetchMoreEvents] = useLazyQuery<GetFavoriteCalendarQuery>(
+    GET_FAVORITE_CALENDAR,
+    {fetchPolicy: "cache-first"}
   );
 
+  // Initialize data
+  useEffect(() => {
+    if (data?.favoriteCalendarEvents) {
+      const events = data.favoriteCalendarEvents.data || [];
+      const paginationInfo = data.favoriteCalendarEvents.pagination;
+
+      setAllEvents(events);
+      if (paginationInfo) {
+        setPagination(paginationInfo);
+      }
+    }
+  }, [data]);
+
+  const loadMore = async () => {
+    if (!pagination?.hasNextPage || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const {data: moreData} = await fetchMoreEvents({
+        variables: {
+          page: pagination.page + 1,
+          limit: pagination.limit,
+        },
+      });
+
+      const newEvents = moreData?.favoriteCalendarEvents?.data || [];
+      const newPagination = moreData?.favoriteCalendarEvents?.pagination;
+
+      setAllEvents((prev) => [...prev, ...newEvents]);
+      if (newPagination) {
+        setPagination(newPagination);
+      }
+    } catch (error) {
+      console.error("Error loading more events:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Group events by date
+  const groupEventsByDate = (events: Event[]) => {
+    const groups: {
+      [year: string]: {
+        [month: string]: {
+          [day: string]: Event[];
+        };
+      };
+    } = {};
+
+    events.forEach((event) => {
+      const year = event.yearStart?.toString() || "Unknown";
+      const month = event.monthStart?.toString() || "Unknown";
+      const day = event.dayStart?.toString() || "Unknown";
+
+      if (!groups[year]) groups[year] = {};
+      if (!groups[year][month]) groups[year][month] = {};
+      if (!groups[year][month][day]) groups[year][month][day] = [];
+
+      groups[year][month][day].push(event);
+    });
+
+    return groups;
+  };
+
+  const groupedEvents = groupEventsByDate(allEvents);
+
+  // Loading state
   if (loading && !data) {
     return (
       <View className="flex-1 bg-white dark:bg-black">
         <Loading message="Caricamento calendario..." />
-      </View>
+        </View>
     );
   }
 
-  if (error || !data) {
+  // Error state
+  if (error) {
     return (
       <View className="flex-1 bg-white dark:bg-black">
-        <ErrorView 
-          message={error?.message || "Impossibile caricare il calendario"}
+        <ErrorView
+          message={error.message || "Impossibile caricare il calendario"}
           onRetry={() => refetch()}
         />
-      </View>
+        </View>
     );
   }
 
   // Empty state
-  if (events.length === 0) {
+  if (allEvents.length === 0) {
     return (
       <View className="flex-1 bg-white dark:bg-black">
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.emptyContainer}
-        >
-          <Text style={styles.emptyIcon}>📅</Text>
-          <Text
-            style={[styles.emptyTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          >
+        <ScrollView contentContainerStyle={{paddingBottom: 40}}>
+          <PageHeader
+            title="Calendario Preferiti"
+            description="Rilasci dei tuoi item e collezioni preferite organizzati per data"
+          />
+          
+          <View className="items-center py-12 px-5">
+            <Text className="text-6xl mb-4">📅</Text>
+            <Text className="text-xl font-semibold mb-2 text-center">
             Nessun rilascio nei preferiti
           </Text>
-          <Text variant="secondary" style={styles.emptyText}>
-            Aggiungi item e collezioni ai tuoi preferiti per vedere i loro
-            rilasci qui.
+            <Text variant="secondary" className="text-sm text-center mb-6">
+              Aggiungi item e collezioni ai tuoi preferiti per vedere i loro rilasci qui.
           </Text>
-          <View style={styles.emptyActions}>
-            <Button onPress={() => router.push("/(main)/explore")}>
-              Esplora contenuti
+            <View className="gap-3 w-full max-w-xs">
+              <Button onPress={() => router.push("/items")}>
+                Esplora Items
+              </Button>
+              <Button 
+                onPress={() => router.push("/collections")}
+                variant="outline"
+              >
+                Esplora Collezioni
             </Button>
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -176,328 +201,68 @@ const CalendarScreen = () => {
 
   return (
     <View className="flex-1 bg-white dark:bg-black">
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}>
-            Calendario Preferiti
-          </Text>
-          <Text variant="secondary" style={styles.subtitle}>
-            {monthNames[month]} {year}
-          </Text>
-        </View>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 40}}
+      >
+        <PageHeader
+          title="Calendario Preferiti"
+          description="Rilasci dei tuoi item e collezioni preferite organizzati per data"
+        />
 
-        {/* Calendar Grid */}
-        <View
-          style={[
-            styles.calendarContainer,
-            {
-              backgroundColor: isDark ? "#111827" : "#ffffff",
-              borderRadius: 16,
-              padding: 16,
-              marginHorizontal: 20,
-            },
-          ]}
-        >
-          {/* Day names header */}
-          <View style={styles.dayNamesRow}>
-            {dayNames.map((day) => (
-              <Text
-                key={day}
-                style={[
-                  styles.dayName,
-                  {color: isDark ? "#9ca3af" : "#6b7280"},
-                ]}
-              >
-                {day}
-              </Text>
+        {/* Eventi raggruppati per data */}
+        <View className="px-5">
+          {Object.entries(groupedEvents)
+            .sort(([a], [b]) => parseInt(a) - parseInt(b))
+            .map(([year, months]) => (
+              <View key={year} className="mb-8">
+                <Text className="text-2xl font-bold mb-6">{year}</Text>
+                {Object.entries(months)
+                  .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                  .map(([month, days]) => (
+                    <View key={month} className="mb-6">
+                      <Text className="text-xl font-semibold mb-4">
+                        {new Date(2025, parseInt(month) - 1)
+                          .toLocaleDateString("it-IT", {month: "long"})
+                          .toUpperCase()}
+          </Text>
+                      {Object.entries(days)
+                        .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                        .map(([day, dayEvents]) => (
+                          <View key={day} className="mb-4">
+                            <Text className="text-lg font-medium mb-3 text-gray-600 dark:text-gray-400">
+                              {day}{" "}
+                              {new Date(2025, parseInt(month) - 1)
+                                .toLocaleDateString("it-IT", {month: "long"})}
+          </Text>
+                            <View className="gap-3">
+                              {dayEvents.map((event) => (
+                                <EventResumeCard key={event.id} event={event} />
+                              ))}
+                            </View>
+                          </View>
+                        ))}
+        </View>
             ))}
           </View>
-
-          {/* Calendar days */}
-          <View style={styles.calendarGrid}>
-            {calendarDays.map((day, index) => (
-              <Pressable
-                key={index}
-                style={[
-                  styles.dayCell,
-                  day
-                    ? {
-                        backgroundColor: isDark ? "#09090b" : "#f8fafc",
-                        borderColor: isDark ? "#374151" : "#e2e8f0",
-                        borderWidth: 1,
-                      }
-                    : {
-                        backgroundColor: "transparent",
-                        borderWidth: 0,
-                      },
-                ]}
-              >
-                {day && (
-                  <>
-                    <Text
-                      style={[
-                        styles.dayText,
-                        {color: isDark ? "#ffffff" : "#111827"},
-                      ]}
-                    >
-                      {day}
-                    </Text>
-                    {hasEventsOnDay(day) && (
-                      <View
-                        style={[styles.eventDot, {backgroundColor: "#3b82f6"}]}
-                      />
-                    )}
-                  </>
-                )}
-              </Pressable>
             ))}
-          </View>
         </View>
 
-        {/* Events Section */}
-        {monthEvents.length > 0 && (
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                {color: isDark ? "#ffffff" : "#111827"},
-              ]}
+        {/* Load More */}
+        {pagination?.hasNextPage && (
+          <View className="px-5 mt-4">
+            <Button
+              onPress={loadMore}
+              disabled={loadingMore}
+              variant="outline"
             >
-              Rilasci di {monthNames[month]}
-            </Text>
-            {monthEvents.map((event: any) => (
-              <Pressable
-                key={event.id}
-                style={[
-                  styles.eventItem,
-                  {
-                    backgroundColor: isDark ? "#09090b" : "#ffffff",
-                    borderColor: isDark ? "#374151" : "#e5e7eb",
-                  },
-                ]}
-                onPress={() =>
-                  event.item?.slug && router.push(`/items/${event.item.slug}`)
-                }
-              >
-                {event.cover && (
-                  <Image
-                    source={{uri: event.cover}}
-                    style={styles.eventCover}
-                    resizeMode="cover"
-                  />
-                )}
-                <View style={styles.eventContent}>
-                  <Text
-                    style={[
-                      styles.eventTitle,
-                      {color: isDark ? "#ffffff" : "#111827"},
-                    ]}
-                    numberOfLines={2}
-                  >
-                    {event.name}
-                  </Text>
-                  {event.item && (
-                    <Text variant="secondary" style={styles.eventItem}>
-                      🎯 {event.item.name}
-                    </Text>
-                  )}
-                  <Text variant="secondary" style={styles.eventTime}>
-                    📅 {event.dayStart} {monthNames[event.monthStart - 1]}{" "}
-                    {event.yearStart}
-                    {event.timeStart && ` • ${event.timeStart}`}
-                  </Text>
-                  {event.description && (
-                    <Text
-                      variant="secondary"
-                      style={styles.eventDescription}
-                      numberOfLines={2}
-                    >
-                      {event.description}
-                    </Text>
-                  )}
-                </View>
-              </Pressable>
-            ))}
+              {loadingMore ? "Caricamento..." : "Carica altri rilasci"}
+            </Button>
           </View>
         )}
-
-        {/* Bottom Spacing */}
-        <View style={styles.bottomSpacing} />
       </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  retryButton: {
-    minWidth: 120,
-  },
-  emptyContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  emptyActions: {
-    minWidth: 200,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-  },
-  calendarContainer: {
-    marginBottom: 32,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  dayNamesRow: {
-    flexDirection: "row",
-    marginBottom: 8,
-  },
-  dayName: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 14,
-    fontWeight: "600",
-    paddingVertical: 8,
-  },
-  calendarGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  dayCell: {
-    width: width / 7 - 4,
-    height: 60,
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 2,
-    borderRadius: 8,
-    borderWidth: 1,
-    position: "relative",
-  },
-  dayText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  eventDot: {
-    position: "absolute",
-    bottom: 4,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 16,
-    paddingHorizontal: 20,
-  },
-  eventItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    padding: 12,
-    marginHorizontal: 20,
-    marginBottom: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  eventCover: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  eventContent: {
-    flex: 1,
-  },
-  eventTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  eventTime: {
-    fontSize: 12,
-    marginTop: 4,
-  },
-  eventDescription: {
-    fontSize: 14,
-    marginTop: 4,
-    lineHeight: 20,
-  },
-  bottomSpacing: {
-    height: 40,
-  },
-});
 
 export default CalendarScreen;

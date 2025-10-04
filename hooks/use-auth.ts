@@ -8,6 +8,7 @@ import {useAuthStore} from "@/stores/auth-store";
 export const useAuth = () => {
   const signIn = useAuthStore((state) => state.signIn);
   const signOut = useAuthStore((state) => state.signOut);
+  const loadUser = useAuthStore((state) => state.loadUser);
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
@@ -21,6 +22,7 @@ export const useAuth = () => {
   return {
     signIn,
     signOut,
+    loadUser,
     register, // Alias temporaneo
     logout: signOut, // Alias per compatibilità
     user,
