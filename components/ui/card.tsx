@@ -1,14 +1,6 @@
 import React from "react";
-import {
-  Pressable,
-  PressableProps,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewProps,
-  ViewStyle,
-} from "react-native";
-import {useColorScheme} from "@/hooks/use-color-scheme";
+import {Pressable, PressableProps, StyleProp, View, ViewProps, ViewStyle} from "react-native";
+import "../../global.css";
 
 interface CardProps extends ViewProps {
   /**
@@ -22,7 +14,7 @@ interface CardProps extends ViewProps {
   /**
    * Props aggiuntive per il Pressable
    */
-  pressableProps?: Omit<PressableProps, "onPress" | "style">;
+  pressableProps?: Omit<PressableProps, "onPress" | "style" | "className">;
   /**
    * Variante della card
    */
@@ -36,6 +28,10 @@ interface CardProps extends ViewProps {
    */
   style?: StyleProp<ViewStyle>;
   /**
+   * Classi Tailwind
+   */
+  className?: string;
+  /**
    * Contenuto della card
    */
   children: React.ReactNode;
@@ -48,46 +44,32 @@ export const Card: React.FC<CardProps> = ({
   variant = "default",
   noShadow = false,
   style,
+  className = "",
   children,
   ...viewProps
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
-  const getCardStyles = () => {
-    const baseStyles = [
-      styles.card,
-      !noShadow && styles.shadow,
-    ];
-
-    const variantStyles = {
-      default: {
-        backgroundColor: isDark ? "#09090b" : "#ffffff",
-        borderWidth: 1,
-        borderColor: isDark ? "#27272a" : "#e5e7eb",
-      },
-      outlined: {
-        backgroundColor: "transparent",
-        borderWidth: 1,
-        borderColor: isDark ? "#374151" : "#e5e7eb",
-      },
-      flat: {
-        backgroundColor: isDark ? "#09090b" : "#ffffff",
-        borderWidth: 0,
-      },
-    };
-
-    return [...baseStyles, variantStyles[variant], style];
+  // Base classes
+  const baseClasses = "rounded-2xl";
+  
+  // Variant classes
+  const variantClasses = {
+    default: "bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800",
+    outlined: "bg-transparent border border-gray-200 dark:border-gray-700",
+    flat: "bg-white dark:bg-zinc-950",
   };
+
+  // Shadow classes
+  const shadowClasses = noShadow ? "" : "shadow-md";
+
+  // Combine all classes
+  const cardClasses = `${baseClasses} ${variantClasses[variant]} ${shadowClasses} ${className}`.trim();
 
   if (pressable && onPress) {
     return (
       <Pressable
         onPress={onPress}
-        style={({pressed}) => [
-          ...getCardStyles(),
-          pressed && styles.pressed,
-        ]}
+        style={style}
+        className={cardClasses}
         {...pressableProps}
       >
         {children}
@@ -96,25 +78,9 @@ export const Card: React.FC<CardProps> = ({
   }
 
   return (
-    <View style={getCardStyles()} {...viewProps}>
+    <View style={style} className={cardClasses} {...viewProps}>
       {children}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-  },
-  shadow: {
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-});
 

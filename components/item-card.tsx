@@ -36,6 +36,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, onPress}) => {
     }
   };
 
+  // Debug
+  console.log('ItemCard:', item.name, 'cover:', item.cover);
+
   return (
     <Card
       pressable={true}
@@ -43,7 +46,9 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, onPress}) => {
       className="overflow-hidden w-40"
     >
       {/* Immagine in alto */}
-      {/* <Image uri={item.cover} className="w-full h-full" /> */}
+      <View className="w-full aspect-square overflow-hidden">
+        <Image uri={item.cover} style={{width: "100%", height: "100%"}} />
+      </View>
 
 
       {/* Testi sotto */}

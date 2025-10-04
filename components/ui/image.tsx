@@ -11,13 +11,9 @@ interface CustomImageProps {
    * Stile custom per l'immagine
    */
   style?: StyleProp<ImageStyle>;
-  /**
-   * Classi Tailwind
-   */
-  className?: string;
 }
 
-export const Image: React.FC<CustomImageProps> = ({ uri, style, className }) => {
+export const Image: React.FC<CustomImageProps> = ({ uri, style }) => {
   const [hasError, setHasError] = React.useState(false);
 
   // Reset error quando cambia URI
@@ -28,21 +24,25 @@ export const Image: React.FC<CustomImageProps> = ({ uri, style, className }) => 
   // Se non c'è URI o c'è stato un errore, mostra placeholder
   if (!uri || hasError) {
     return (
-      <View style={[style, styles.placeholder]} className={className}>
+      <View style={[style, styles.placeholder]}>
         <Text style={styles.icon}>🖼️</Text>
       </View>
     );
   }
 
+  // ExpoImage non supporta className, quindi lo convertiamo in style se necessario
   return (
     <ExpoImage
       source={{ uri }}
       style={style}
-      className={className}
       contentFit="cover"
       transition={200}
       cachePolicy="memory-disk"
-      onError={() => setHasError(true)}
+      onError={(error) => {
+        console.log('Image error:', uri, error);
+        setHasError(true);
+      }}
+      onLoad={() => console.log('Image loaded:', uri)}
     />
   );
 };
