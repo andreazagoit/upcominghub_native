@@ -1,5 +1,5 @@
 import {useQuery} from "@apollo/client/react";
-import {router, useLocalSearchParams} from "expo-router";
+import {router, Stack, useLocalSearchParams} from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
@@ -138,6 +138,8 @@ const ItemDetailScreen = () => {
   }
 
   return (
+        <>
+          <Stack.Screen options={{title: item.name}} />
     <View
       style={[
         styles.container,
@@ -430,9 +432,10 @@ const ItemDetailScreen = () => {
           >
             ← Torna agli items
           </Button>
-        </View>
-      </ScrollView>
-    </View>
+          </View>
+        </ScrollView>
+      </View>
+    </>
   );
 };
 

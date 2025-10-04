@@ -241,7 +241,6 @@ const CollectionDetailScreen = () => {
       <Stack.Screen
         options={{
           title: collection.name,
-          headerLargeTitle: true,
           headerRight: () => (
             <Pressable
               onPress={handleToggleFavorite}

@@ -1,12 +1,13 @@
 import {useLazyQuery} from "@apollo/client/react";
 import {router} from "expo-router";
 import React, {useState} from "react";
-import {Alert, Pressable, ScrollView, View} from "react-native";
+import {Alert, ScrollView, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetUserEventsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
 import {Loading} from "@/components/ui/loading";
+import {SegmentedTabs} from "@/components/ui/segmented-tabs";
 import {Image} from "@/components/ui/image";
 import {EventResumeCard} from "@/components/event-resume-card";
 import {useAuth} from "@/hooks/use-auth";
@@ -51,7 +52,7 @@ type Event = NonNullable<
 
 const AccountScreen = () => {
   const {user, logout} = useAuth();
-  const [activeTab, setActiveTab] = useState<"events" | "profile">("events");
+  const [activeTab, setActiveTab] = useState(0); // 0 = eventi, 1 = profilo
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [pagination, setPagination] = useState<{
     page: number;
@@ -183,41 +184,17 @@ const AccountScreen = () => {
         </View>
 
         {/* Tabs */}
-        <View className="flex-row px-5 mb-5 gap-3">
-          <Pressable
-            className={`flex-1 py-3 items-center rounded-lg ${
-              activeTab === "events" ? "border-b-2 border-blue-600 dark:border-blue-500" : ""
-            }`}
-            onPress={() => setActiveTab("events")}
-          >
-            <Text className={`text-sm font-semibold ${
-              activeTab === "events" 
-                ? "text-blue-600 dark:text-blue-500" 
-                : "text-gray-500 dark:text-gray-400"
-            }`}>
-              📅 Eventi ({allEvents.length})
-            </Text>
-          </Pressable>
-
-          <Pressable
-            className={`flex-1 py-3 items-center rounded-lg ${
-              activeTab === "profile" ? "border-b-2 border-blue-600 dark:border-blue-500" : ""
-            }`}
-            onPress={() => setActiveTab("profile")}
-          >
-            <Text className={`text-sm font-semibold ${
-              activeTab === "profile" 
-                ? "text-blue-600 dark:text-blue-500" 
-                : "text-gray-500 dark:text-gray-400"
-            }`}>
-              👤 Profilo
-            </Text>
-          </Pressable>
+        <View className="px-5 mb-5">
+          <SegmentedTabs
+            options={[`📅 Eventi (${allEvents.length})`, '👤 Profilo']}
+            selectedIndex={activeTab}
+            onTabChange={setActiveTab}
+          />
         </View>
 
         {/* Contenuto Tab */}
         <View className="px-5">
-          {activeTab === "events" && (
+          {activeTab === 0 && (
             <View className="mb-6">
               {allEvents.length > 0 ? (
                 <>
@@ -249,7 +226,7 @@ const AccountScreen = () => {
             </View>
           )}
 
-          {activeTab === "profile" && (
+          {activeTab === 1 && (
             <View className="mb-6">
               {/* Info personali */}
               <View className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-5 mb-5">
