@@ -12,6 +12,7 @@ import {graphql} from "@/graphql/generated";
 import type {GetArticleBySlugQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
+import {Image} from "@/components/ui/image";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 
 const GET_ARTICLE_BY_SLUG = graphql(`
@@ -140,9 +141,8 @@ const ArticleDetailScreen = () => {
       >
         {article.cover && (
           <Image
-            source={{uri: article.cover}}
+            uri={article.cover}
             style={styles.coverImage}
-            resizeMode="cover"
           />
         )}
 
@@ -161,7 +161,7 @@ const ArticleDetailScreen = () => {
               <View style={styles.authorInfo}>
                 {article.author.image && (
                   <Image
-                    source={{uri: article.author.image}}
+                    uri={article.author.image}
                     style={styles.authorAvatar}
                   />
                 )}

@@ -1,5 +1,6 @@
 import React from "react";
 import {Pressable, PressableProps, StyleProp, View, ViewProps, ViewStyle} from "react-native";
+import {cn} from "@/lib/utils";
 
 interface CardProps extends ViewProps {
   /**
@@ -19,10 +20,6 @@ interface CardProps extends ViewProps {
    */
   variant?: "default" | "outlined" | "flat";
   /**
-   * Disabilita shadows ed elevation
-   */
-  noShadow?: boolean;
-  /**
    * Stile custom
    */
   style?: StyleProp<ViewStyle>;
@@ -41,15 +38,11 @@ export const Card: React.FC<CardProps> = ({
   onPress,
   pressableProps,
   variant = "default",
-  noShadow = false,
   style,
-  className = "",
+  className,
   children,
   ...viewProps
 }) => {
-  // Base classes
-  const baseClasses = "rounded-2xl";
-  
   // Variant classes
   const variantClasses = {
     default: "bg-white dark:bg-zinc-950 border border-gray-200 dark:border-zinc-800",
@@ -57,11 +50,8 @@ export const Card: React.FC<CardProps> = ({
     flat: "bg-white dark:bg-zinc-950",
   };
 
-  // Shadow classes
-  const shadowClasses = noShadow ? "" : "shadow-md";
-
-  // Combine all classes
-  const cardClasses = `${baseClasses} ${variantClasses[variant]} ${shadowClasses} ${className}`.trim();
+  // Combine all classes using cn utility
+  const cardClasses = cn("rounded-2xl", variantClasses[variant], className);
 
   if (pressable && onPress) {
     return (

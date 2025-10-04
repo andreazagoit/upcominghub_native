@@ -1,9 +1,8 @@
 import React from "react";
-import {Pressable, StyleSheet, View} from "react-native";
+import {Pressable, View} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Card} from "@/components/ui/card";
 import {Image} from "@/components/ui/image";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 
 interface Event {
   id: number;
@@ -32,50 +31,36 @@ export const EventResumeCard: React.FC<EventResumeCardProps> = ({
   event,
   onPress,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const content = (
-    <View style={styles.content}>
+    <View className="flex-row p-3 gap-3">
       {/* Cover Image */}
-      <View style={styles.imageContainer}>
-        <Image uri={event.cover} style={styles.coverImage} />
+      <View className="w-16 h-16 rounded-xl overflow-hidden">
+        <Image uri={event.cover} style={{width: 64, height: 64}} />
       </View>
 
       {/* Event Info */}
-      <View style={styles.eventInfo}>
+      <View className="flex-1 justify-center">
         {/* Date - Prima del nome */}
         {event.dayStart && event.monthStart && event.yearStart && (
-          <Text variant="muted" style={styles.date}>
+          <Text variant="muted" className="text-xs mb-1.5">
             {event.dayStart}/{event.monthStart}/{event.yearStart}
             {event.timeStart && ` • ${event.timeStart}`}
           </Text>
         )}
 
-        <Text
-          style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}
-          numberOfLines={2}
-        >
+        <Text className="text-base font-semibold mb-1.5 leading-snug" numberOfLines={2}>
           {event.name}
         </Text>
 
         {/* Platforms */}
         {event.availability && event.availability.length > 0 && (
-          <View style={styles.platformsContainer}>
+          <View className="flex-row flex-wrap gap-1.5 mt-1">
             {event.availability.slice(0, 3).map((avail) => (
               <View
                 key={avail.id}
-                style={[
-                  styles.platformBadge,
-                  {backgroundColor: isDark ? "#374151" : "#f3f4f6"},
-                ]}
+                className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700"
               >
-                <Text
-                  style={[
-                    styles.platformText,
-                    {color: isDark ? "#d1d5db" : "#374151"},
-                  ]}
-                >
+                <Text className="text-[10px] font-medium text-gray-700 dark:text-gray-300">
                   {avail.platform}
                 </Text>
               </View>
@@ -88,67 +73,11 @@ export const EventResumeCard: React.FC<EventResumeCardProps> = ({
 
   if (onPress) {
     return (
-      <Pressable
-        onPress={onPress}
-        style={({pressed}) => [pressed && styles.pressed]}
-      >
-        <Card style={styles.card}>{content}</Card>
+      <Pressable onPress={onPress} className="active:opacity-80">
+        <Card className="mb-3">{content}</Card>
       </Pressable>
     );
   }
 
-  return <Card style={styles.card}>{content}</Card>;
+  return <Card className="mb-3">{content}</Card>;
 };
-
-const styles = StyleSheet.create({
-  card: {
-    marginBottom: 12,
-  },
-  content: {
-    flexDirection: "row",
-    padding: 12,
-    gap: 12,
-  },
-  imageContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  coverImage: {
-    width: 64,
-    height: 64,
-  },
-  eventInfo: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 6,
-    lineHeight: 22,
-  },
-  date: {
-    fontSize: 12,
-    marginBottom: 6,
-  },
-  platformsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 4,
-  },
-  platformBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  platformText: {
-    fontSize: 10,
-    fontWeight: "500",
-  },
-  pressed: {
-    opacity: 0.8,
-  },
-});

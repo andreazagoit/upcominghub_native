@@ -177,7 +177,7 @@ const UserProfileScreen = () => {
             size="large"
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
-          <Text variant="secondary" style={styles.loadingText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
             Caricamento profilo...
           </Text>
         </View>
@@ -200,7 +200,7 @@ const UserProfileScreen = () => {
           >
             {error ? "Errore nel caricamento" : "Utente non trovato"}
           </Text>
-          <Text variant="secondary" style={styles.errorText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
             {error?.message ||
               "L'utente che stai cercando non esiste o è stato rimosso"}
           </Text>
@@ -256,12 +256,12 @@ const UserProfileScreen = () => {
           <Text style={[styles.name, {color: isDark ? "#ffffff" : "#111827"}]}>
             {user.name}
           </Text>
-          <Text variant="secondary" style={styles.username}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.username}>
             @{user.slug}
           </Text>
 
           {user.bio && (
-            <Text variant="secondary" style={styles.bio}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.bio}>
               {user.bio}
             </Text>
           )}
@@ -354,7 +354,7 @@ const UserProfileScreen = () => {
               ) : (
                 <View style={styles.emptyContainer}>
                   <Text style={styles.emptyIcon}>📅</Text>
-                  <Text variant="secondary" style={styles.emptyText}>
+                  <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
                     Nessun evento disponibile
                   </Text>
                 </View>
@@ -390,7 +390,7 @@ const UserProfileScreen = () => {
               ) : (
                 <View style={styles.emptyContainer}>
                   <Text style={styles.emptyIcon}>❤️</Text>
-                  <Text variant="secondary" style={styles.emptyText}>
+                  <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
                     Nessuna collezione nei preferiti
                   </Text>
                 </View>

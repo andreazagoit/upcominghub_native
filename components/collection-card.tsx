@@ -1,8 +1,7 @@
 import React from "react";
-import {StyleSheet, View, type DimensionValue} from "react-native";
+import {View, type DimensionValue} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Card} from "@/components/ui/card";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
 interface Collection {
@@ -29,9 +28,6 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
   width,
   onPress,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const handlePress = () => {
     if (onPress) {
       onPress();
@@ -44,33 +40,22 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     <Card
       pressable={true}
       onPress={handlePress}
-      style={[styles.card, width ? {width} : null]}
+      style={width ? {width} : undefined}
+      className="min-h-[120px] min-w-[200px]"
     >
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text
-            style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}
-            numberOfLines={2}
-          >
+      <View className="p-4">
+        <View className="flex-row justify-between items-start mb-2">
+          <Text className="text-base font-semibold flex-1 leading-snug" numberOfLines={2}>
             {collection.name}
           </Text>
           {collection.isFeatured && (
-            <View
-              style={[
-                styles.featuredBadge,
-                {backgroundColor: isDark ? "#3b82f6" : "#2563eb"},
-              ]}
-            >
-              <Text style={styles.featuredText}>⭐</Text>
+            <View className="px-2 py-1 rounded-xl ml-2 bg-blue-600 dark:bg-blue-600">
+              <Text className="text-xs">⭐</Text>
             </View>
           )}
         </View>
         {collection.description && (
-          <Text
-            variant="secondary"
-            style={styles.description}
-            numberOfLines={2}
-          >
+          <Text variant="secondary" className="text-sm leading-5" numberOfLines={2}>
             {collection.description}
           </Text>
         )}
@@ -78,38 +63,3 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    minHeight: 120,
-    minWidth: 200,
-  },
-  content: {
-    padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    flex: 1,
-    lineHeight: 22,
-  },
-  featuredBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  featuredText: {
-    fontSize: 12,
-  },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-});

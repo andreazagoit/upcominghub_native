@@ -1,9 +1,8 @@
 import React from "react";
-import {StyleSheet, View} from "react-native";
+import {View} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Image} from "@/components/ui/image";
 import {Card} from "@/components/ui/card";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
 interface Event {
@@ -48,9 +47,6 @@ export const EventCard: React.FC<EventCardProps> = ({
   isClickable = true,
   onPress,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const handlePress = () => {
     if (onPress) {
       onPress();
@@ -63,60 +59,45 @@ export const EventCard: React.FC<EventCardProps> = ({
     <Card
       pressable={isClickable || !!onPress}
       onPress={handlePress}
-      style={styles.card}
+      className="overflow-hidden mb-4"
     >
       {showCover && event.cover && (
-        <View style={styles.coverContainer}>
-          <Image uri={event.cover} style={styles.cover} />
+        <View className="w-full h-[180px]">
+          <Image uri={event.cover} style={{width: "100%", height: 180}} />
         </View>
       )}
-      <View style={styles.content}>
-        <Text
-          style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}
-          numberOfLines={2}
-        >
+      <View className="p-4">
+        <Text className="text-lg font-semibold mb-1.5" numberOfLines={2}>
           {event.name}
         </Text>
 
         {event.item && (
-          <Text variant="secondary" style={styles.itemName}>
+          <Text variant="secondary" className="text-xs mb-1">
             🎯 {event.item.name}
           </Text>
         )}
 
         {event.dayStart && event.monthStart && event.yearStart && (
-          <Text variant="muted" style={styles.date}>
+          <Text variant="muted" className="text-xs mb-2">
             📅 {event.dayStart}/{event.monthStart}/{event.yearStart}
             {event.timeStart && ` • ${event.timeStart}`}
           </Text>
         )}
 
         {event.description && (
-          <Text
-            variant="secondary"
-            style={styles.description}
-            numberOfLines={2}
-          >
+          <Text variant="secondary" className="text-sm leading-5 mb-2" numberOfLines={2}>
             {event.description}
           </Text>
         )}
 
         {event.availability && event.availability.length > 0 && (
-          <View style={styles.platformsContainer}>
+          <View className="flex-row flex-wrap gap-1.5 mt-1">
             {event.availability.slice(0, 3).map((avail) => (
               <View
                 key={avail.id}
-                style={[
-                  styles.platformBadge,
-                  {backgroundColor: isDark ? "#374151" : "#f3f4f6"},
-                ]}
+                className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700"
               >
-                <Text
-                  style={[
-                    styles.platformText,
-                    {color: isDark ? "#d1d5db" : "#374151"},
-                  ]}
-                >
+                <Text className="text-[11px] font-medium text-gray-700 dark:text-gray-300">
                   {avail.platform}
                 </Text>
               </View>
@@ -127,54 +108,3 @@ export const EventCard: React.FC<EventCardProps> = ({
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    overflow: "hidden",
-    marginBottom: 16,
-  },
-  coverContainer: {
-    width: "100%",
-    height: 180,
-  },
-  cover: {
-    width: "100%",
-    height: 180,
-  },
-  content: {
-    padding: 16,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  itemName: {
-    fontSize: 13,
-    marginBottom: 4,
-  },
-  date: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  platformsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 4,
-  },
-  platformBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  platformText: {
-    fontSize: 11,
-    fontWeight: "500",
-  },
-});

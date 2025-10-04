@@ -1,40 +1,55 @@
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import React from "react";
 import {Text as RNText, TextProps as RNTextProps} from "react-native";
+import {cn} from "@/lib/utils";
 
 interface TextProps extends RNTextProps {
-  variant?: "default" | "secondary" | "muted" | "accent";
+  /**
+   * Variante predefinita del testo
+   */
+  variant?: "title" | "subtitle" | "body" | "caption" | "muted" | "secondary";
+  /**
+   * Se true, applica font-bold
+   */
+  bold?: boolean;
+  /**
+   * Classi Tailwind custom (hanno priorità sulle varianti)
+   */
+  className?: string;
 }
 
+/**
+ * Componente Text con varianti predefinite e supporto Tailwind
+ * 
+ * @example
+ * <Text>Testo normale</Text>
+ * <Text variant="title" bold>Titolo in grassetto</Text>
+ * <Text variant="muted">Testo grigio</Text>
+ * <Text variant="secondary" className="text-lg">Override con className</Text>
+ */
 export const Text: React.FC<TextProps> = ({
-  style,
-  variant = "default",
+  variant,
+  bold,
+  className,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
-  const getTextColor = () => {
-    switch (variant) {
-      case "secondary":
-        return isDark ? "#a1a1aa" : "#71717a";
-      case "muted":
-        return isDark ? "#71717a" : "#a1a1aa";
-      case "accent":
-        return isDark ? "#3b82f6" : "#2563eb";
-      default:
-        return isDark ? "#ffffff" : "#000000";
-    }
+  // Varianti predefinite
+  const variantClasses = {
+    title: "text-2xl",
+    subtitle: "text-lg",
+    body: "text-base",
+    caption: "text-sm",
+    muted: "text-zinc-500 dark:text-zinc-500",
+    secondary: "text-zinc-600 dark:text-zinc-400",
   };
 
   return (
     <RNText
-      style={[
-        {
-          color: getTextColor(),
-        },
-        style,
-      ]}
+      className={cn(
+        "text-black dark:text-white",
+        variant && variantClasses[variant],
+        bold && "font-bold",
+        className
+      )}
       {...props}
     />
   );

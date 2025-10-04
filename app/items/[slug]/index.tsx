@@ -88,7 +88,7 @@ const ItemDetailScreen = () => {
     return (
       <View className="flex-1 bg-white dark:bg-black">
         <Loading message="Caricamento item..." />
-      </View>
+        </View>
     );
   }
 
@@ -99,7 +99,7 @@ const ItemDetailScreen = () => {
           message={error?.message || "L'item che stai cercando non esiste o è stato rimosso"}
           onRetry={() => refetch()}
         />
-      </View>
+        </View>
     );
   }
 
@@ -107,73 +107,73 @@ const ItemDetailScreen = () => {
     <>
       <Stack.Screen options={{title: item.name}} />
       <View className="flex-1 bg-white dark:bg-black">
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}>
           {/* Hero Section */}
           <View className="mb-6 p-5 bg-white dark:bg-zinc-950">
-            {/* Cover Image */}
-            {item.cover && (
+          {/* Cover Image */}
+          {item.cover && (
               <View className="w-full rounded-2xl overflow-hidden">
                 <Image uri={item.cover} style={{width: "100%", aspectRatio: 1}} />
-              </View>
-            )}
+            </View>
+          )}
 
-            {/* Content Hero */}
+          {/* Content Hero */}
             <View className="pt-5">
               <Text className="text-3xl font-bold mb-2 leading-9">
-                {item.name}
-              </Text>
-              {item.description && (
+              {item.name}
+            </Text>
+            {item.description && (
                 <Text className="text-base leading-6 mb-4 text-gray-500 dark:text-gray-400">
-                  {item.description}
-                </Text>
-              )}
+                {item.description}
+              </Text>
+            )}
 
-              {/* Author Info */}
-              {item.author && (
-                <Pressable
+            {/* Author Info */}
+            {item.author && (
+              <Pressable
                   className="flex-row items-center gap-3 mt-2"
-                  onPress={() =>
-                    item.author?.slug && router.push(`/users/${item.author.slug}`)
-                  }
-                >
-                  {item.author.image && (
-                    <Image 
-                      uri={item.author.image} 
+                onPress={() =>
+                  item.author?.slug && router.push(`/users/${item.author.slug}`)
+                }
+              >
+                {item.author.image && (
+                  <Image
+                    uri={item.author.image}
                       style={{width: 44, height: 44, borderRadius: 22}} 
-                    />
-                  )}
-                  <View>
+                  />
+                )}
+                <View>
                     <Text className="text-xs mb-0.5 text-gray-500 dark:text-gray-400">
-                      Creato da
-                    </Text>
+                    Creato da
+                  </Text>
                     <Text className="text-sm font-semibold">
-                      {item.author.name}
-                    </Text>
-                  </View>
-                </Pressable>
-              )}
-            </View>
+                    {item.author.name}
+                  </Text>
+                </View>
+              </Pressable>
+            )}
           </View>
+        </View>
 
           {/* Disponibilità Card */}
-          {firstEvent && eventDate && (
+        {firstEvent && eventDate && (
             <View className="mb-6 px-5">
               <Card className="p-5">
                 <View className="flex-row items-center mb-4 gap-3">
                   <View className="w-10 h-10 rounded-full justify-center items-center bg-blue-100 dark:bg-blue-600">
                     <Text className="text-xl">📅</Text>
-                  </View>
+                </View>
                   <View className="flex-1">
                     <Text className="text-base font-semibold mb-0.5">
-                      Disponibilità
-                    </Text>
-                    <Text variant="secondary" className="text-xs">
-                      {isAvailable ? "Disponibile dal" : "In arrivo"}
-                    </Text>
-                  </View>
+                    Disponibilità
+                  </Text>
+                    <Text className="text-xs text-zinc-600 dark:text-zinc-400">
+                    {isAvailable ? "Disponibile dal" : "In arrivo"}
+                  </Text>
                 </View>
+              </View>
                 <View className="gap-2">
-                  <View 
+                <View
                     className={`self-start px-3 py-1.5 rounded-lg ${
                       isAvailable 
                         ? "bg-blue-600 dark:bg-blue-600" 
@@ -181,147 +181,147 @@ const ItemDetailScreen = () => {
                     }`}
                   >
                     <Text className="text-xs font-semibold text-white">
-                      {isAvailable ? "Disponibile" : "Prossimamente"}
-                    </Text>
-                  </View>
-                  <Text className="text-base font-semibold">
-                    {eventDate.toLocaleDateString("it-IT", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {isAvailable ? "Disponibile" : "Prossimamente"}
                   </Text>
-                  {firstEvent.name && (
-                    <Text variant="muted" className="text-xs">
-                      {firstEvent.name}
-                    </Text>
-                  )}
-                  {item.events && item.events.length > 1 && (
-                    <Text variant="muted" className="text-xs">
-                      + {item.events.length - 1} altr
-                      {item.events.length - 1 === 1 ? "o" : "i"} event
-                      {item.events.length - 1 === 1 ? "o" : "i"}
-                    </Text>
-                  )}
                 </View>
-              </Card>
-            </View>
-          )}
+                  <Text className="text-base font-semibold">
+                  {eventDate.toLocaleDateString("it-IT", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
+                {firstEvent.name && (
+                    <Text className="text-xs text-zinc-500">
+                    {firstEvent.name}
+                  </Text>
+                )}
+                {item.events && item.events.length > 1 && (
+                    <Text className="text-xs text-zinc-500">
+                    + {item.events.length - 1} altr
+                    {item.events.length - 1 === 1 ? "o" : "i"} event
+                    {item.events.length - 1 === 1 ? "o" : "i"}
+                  </Text>
+                )}
+              </View>
+            </Card>
+          </View>
+        )}
 
-          {/* Informazioni Card */}
+        {/* Informazioni Card */}
           <View className="mb-6 px-5">
             <Card className="p-5">
               <View className="flex-row items-center mb-4 gap-3">
                 <View className="w-10 h-10 rounded-full justify-center items-center bg-purple-100 dark:bg-purple-600">
                   <Text className="text-xl">📦</Text>
-                </View>
-                <View>
-                  <Text className="text-base font-semibold mb-0.5">
-                    Informazioni
-                  </Text>
-                  <Text variant="secondary" className="text-xs">
-                    Dettagli item
-                  </Text>
-                </View>
               </View>
+              <View>
+                  <Text className="text-base font-semibold mb-0.5">
+                  Informazioni
+                </Text>
+                  <Text className="text-xs text-zinc-600 dark:text-zinc-400">
+                  Dettagli item
+                </Text>
+              </View>
+            </View>
 
               <View className="gap-4">
-                {/* Collections */}
-                {item.collections && item.collections.length > 0 && (
+              {/* Collections */}
+              {item.collections && item.collections.length > 0 && (
                   <View className="gap-2">
-                    <Text variant="muted" className="text-xs">
-                      Collezioni
-                    </Text>
+                    <Text className="text-xs text-zinc-500">
+                    Collezioni
+                  </Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {item.collections.map((collection) => (
-                        <Pressable
-                          key={collection.id}
+                    {item.collections.map((collection) => (
+                      <Pressable
+                        key={collection.id}
                           className="px-2.5 py-1.5 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600"
-                          onPress={() =>
-                            router.push(`/collections/${collection.slug}`)
-                          }
+                        onPress={() =>
+                          router.push(`/collections/${collection.slug}`)
+                        }
                         >
                           <Text className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                            {collection.name}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
+                          {collection.name}
+                        </Text>
+                      </Pressable>
+                    ))}
                   </View>
-                )}
-
-                {/* Date Created */}
-                <View className="gap-2">
-                  <Text variant="muted" className="text-xs">
-                    Creato
-                  </Text>
-                  <Text variant="secondary" className="text-sm font-medium">
-                    {new Date(item.createdAt).toLocaleDateString("it-IT", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </Text>
                 </View>
+              )}
 
-                {/* Last Updated */}
+              {/* Date Created */}
                 <View className="gap-2">
-                  <Text variant="muted" className="text-xs">
-                    Ultimo aggiornamento
-                  </Text>
-                  <Text variant="secondary" className="text-sm font-medium">
-                    {new Date(item.updatedAt).toLocaleDateString("it-IT", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </Text>
-                </View>
+                  <Text className="text-xs text-zinc-500">
+                  Creato
+                </Text>
+                  <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  {new Date(item.createdAt).toLocaleDateString("it-IT", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
               </View>
-            </Card>
-          </View>
 
-          {/* Events Section */}
-          {item.events && item.events.length > 0 && (
+              {/* Last Updated */}
+                <View className="gap-2">
+                  <Text className="text-xs text-zinc-500">
+                  Ultimo aggiornamento
+                </Text>
+                  <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  {new Date(item.updatedAt).toLocaleDateString("it-IT", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
+              </View>
+            </View>
+          </Card>
+        </View>
+
+        {/* Events Section */}
+        {item.events && item.events.length > 0 && (
             <View className="mb-6 px-5">
               <Text className="text-xl font-semibold mb-4">
-                Eventi
-              </Text>
+              Eventi
+            </Text>
               <View>
-                {item.events.map((event) => (
+              {item.events.map((event) => (
                   <EventResumeCard 
                     key={event.id} 
                     event={event}
                     onPress={() => setSelectedEvent(event)}
                   />
-                ))}
-              </View>
+              ))}
             </View>
-          )}
+          </View>
+        )}
 
-          {/* Content */}
-          {item.content && (
+        {/* Content */}
+        {item.content && (
             <View className="mb-6 px-5">
               <Text className="text-xl font-semibold mb-4">
-                Descrizione
-              </Text>
+              Descrizione
+            </Text>
               <Text className="text-base leading-7 text-gray-700 dark:text-gray-300">
-                {item.content}
-              </Text>
-            </View>
-          )}
-
-          {/* Back Button */}
-          <View className="px-5 py-8">
-            <Button
-              onPress={() => router.back()}
-              variant="outline"
-              className="mt-2"
-            >
-              ← Torna agli items
-            </Button>
+              {item.content}
+            </Text>
           </View>
-        </ScrollView>
+        )}
+
+        {/* Back Button */}
+          <View className="px-5 py-8">
+          <Button
+            onPress={() => router.back()}
+            variant="outline"
+              className="mt-2"
+          >
+            ← Torna agli items
+          </Button>
+        </View>
+      </ScrollView>
       </View>
 
       {/* Bottom Sheet per dettagli evento */}
@@ -356,7 +356,7 @@ const ItemDetailScreen = () => {
             {/* Data evento */}
             {selectedEvent.yearStart && selectedEvent.monthStart && selectedEvent.dayStart && (
               <View className="mb-4">
-                <Text variant="muted" className="text-xs mb-1">Data</Text>
+                <Text className="text-xs mb-1 text-zinc-500">Data</Text>
                 <Text className="text-base font-semibold">
                   📅 {selectedEvent.dayStart}/{selectedEvent.monthStart}/{selectedEvent.yearStart}
                   {selectedEvent.timeStart && ` - ${selectedEvent.timeStart}`}
@@ -367,7 +367,7 @@ const ItemDetailScreen = () => {
             {/* Availability */}
             {selectedEvent.availability && selectedEvent.availability.length > 0 && (
               <View className="mb-4">
-                <Text variant="muted" className="text-xs mb-2">Disponibile su</Text>
+                <Text className="text-xs mb-2 text-zinc-500">Disponibile su</Text>
                 <View className="gap-2">
                   {selectedEvent.availability.map((avail: any) => (
                     <Pressable

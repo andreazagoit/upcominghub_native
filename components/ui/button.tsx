@@ -1,148 +1,86 @@
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import React from "react";
-import {
-    ActivityIndicator,
-    Text,
-    TouchableOpacity,
-    TouchableOpacityProps,
-} from "react-native";
+import {ActivityIndicator, Text, TouchableOpacity, TouchableOpacityProps} from "react-native";
+import {cn} from "@/lib/utils";
 
 interface ButtonProps extends TouchableOpacityProps {
   variant?: "default" | "secondary" | "outline" | "ghost" | "destructive";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
+  className?: string;
   children: React.ReactNode;
 }
 
+/**
+ * Componente Button con Tailwind
+ * 
+ * @example
+ * <Button>Click me</Button>
+ * <Button variant="outline" size="sm">Small outline</Button>
+ * <Button loading>Loading...</Button>
+ */
 export const Button: React.FC<ButtonProps> = ({
-  style,
   variant = "default",
   size = "md",
   loading = false,
   disabled,
+  className,
   children,
   ...props
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
-  const getButtonStyles = () => {
-    const baseStyles = {
-      borderRadius: 8,
-      alignItems: "center" as const,
-      justifyContent: "center" as const,
-      flexDirection: "row" as const,
-    };
-
-    // Size styles
-    const sizeStyles = {
-      sm: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        minHeight: 32,
-      },
-      md: {
-        paddingHorizontal: 16,
-        paddingVertical: 12,
-        minHeight: 40,
-      },
-      lg: {
-        paddingHorizontal: 20,
-        paddingVertical: 16,
-        minHeight: 48,
-      },
-    };
-
-    // Variant styles
-    const variantStyles = {
-      default: {
-        backgroundColor: isDark ? "#3b82f6" : "#2563eb",
-        borderWidth: 0,
-      },
-      secondary: {
-        backgroundColor: isDark ? "#374151" : "#f3f4f6",
-        borderWidth: 0,
-      },
-      outline: {
-        backgroundColor: "transparent",
-        borderWidth: 1,
-        borderColor: isDark ? "#4b5563" : "#d1d5db",
-      },
-      ghost: {
-        backgroundColor: "transparent",
-        borderWidth: 0,
-      },
-      destructive: {
-        backgroundColor: isDark ? "#dc2626" : "#ef4444",
-        borderWidth: 0,
-      },
-    };
-
-    return {
-      ...baseStyles,
-      ...sizeStyles[size],
-      ...variantStyles[variant],
-    };
+  // Variant classes
+  const variantClasses = {
+    default: "bg-blue-600 dark:bg-blue-600",
+    secondary: "bg-gray-700 dark:bg-gray-700",
+    outline: "bg-transparent border border-gray-300 dark:border-gray-600",
+    ghost: "bg-transparent",
+    destructive: "bg-red-600 dark:bg-red-600",
   };
 
-  const getTextColor = () => {
-    switch (variant) {
-      case "secondary":
-        return isDark ? "#ffffff" : "#111827";
-      case "outline":
-        return isDark ? "#ffffff" : "#111827";
-      case "ghost":
-        return isDark ? "#ffffff" : "#111827";
-      case "destructive":
-        return "#ffffff";
-      default:
-        return "#ffffff";
-    }
+  // Size classes
+  const sizeClasses = {
+    sm: "px-3 py-2 min-h-[32px]",
+    md: "px-4 py-3 min-h-[40px]",
+    lg: "px-5 py-4 min-h-[48px]",
   };
 
-  const getTextSize = () => {
-    switch (size) {
-      case "sm":
-        return 14;
-      case "md":
-        return 16;
-      case "lg":
-        return 18;
-      default:
-        return 16;
-    }
+  // Text color classes based on variant
+  const textColorClasses = {
+    default: "text-white",
+    secondary: "text-white",
+    outline: "text-gray-900 dark:text-gray-100",
+    ghost: "text-gray-900 dark:text-gray-100",
+    destructive: "text-white",
   };
 
-  const isDisabled = disabled || loading;
+  // Text size classes
+  const textSizeClasses = {
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg",
+  };
+
+  const buttonClasses = cn(
+    "rounded-lg items-center justify-center flex-row",
+    variantClasses[variant],
+    sizeClasses[size],
+    (disabled || loading) && "opacity-50",
+    className
+  );
 
   return (
     <TouchableOpacity
-      style={[
-        getButtonStyles(),
-        isDisabled && {
-          opacity: 0.5,
-        },
-        style,
-      ]}
-      disabled={isDisabled}
+      className={buttonClasses}
+      disabled={disabled || loading}
+      activeOpacity={0.7}
       {...props}
     >
-      {loading && (
-        <ActivityIndicator
-          size="small"
-          color={getTextColor()}
-          style={{marginRight: 8}}
-        />
+      {loading ? (
+        <ActivityIndicator size="small" color="white" />
+      ) : (
+        <Text className={cn("font-semibold", textColorClasses[variant], textSizeClasses[size])}>
+          {children}
+        </Text>
       )}
-      <Text
-        style={{
-          color: getTextColor(),
-          fontSize: getTextSize(),
-          fontWeight: "600",
-        }}
-      >
-        {children}
-      </Text>
     </TouchableOpacity>
   );
 };

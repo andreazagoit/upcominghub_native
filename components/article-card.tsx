@@ -1,9 +1,8 @@
 import React from "react";
-import {StyleSheet, View} from "react-native";
+import {View} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Image} from "@/components/ui/image";
 import {Card} from "@/components/ui/card";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 
 interface Article {
@@ -33,9 +32,6 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   article,
   onPress,
 }) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const handlePress = () => {
     if (onPress) {
       onPress();
@@ -45,54 +41,44 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
   };
 
   return (
-    <Card pressable={true} onPress={handlePress} style={styles.card}>
-      <View style={styles.container}>
-        {/* Immagine a sinistra */}
-        <View style={styles.imageContainer}>
-          <Image uri={article.cover} style={styles.coverImage} />
+    <Card pressable={true} onPress={handlePress} className="overflow-hidden">
+      <View className="flex-row p-4 gap-4">
+        {/* Immagine a sinistra (40%) */}
+        <View className="w-[40%] aspect-square overflow-hidden rounded-lg">
+          <Image uri={article.cover} style={{width: "100%", height: "100%"}} />
         </View>
 
-        {/* Contenuto a destra */}
-        <View style={styles.content}>
+        {/* Contenuto a destra (60%) */}
+        <View className="flex-1">
           {/* Meta in alto */}
-          <View style={styles.header}>
+          <View className="flex-row justify-between items-center mb-2">
             {article.published ? (
-              <Text variant="muted" style={styles.date}>
+              <Text variant="muted" className="text-xs">
                 {new Date(article.published).toLocaleDateString("it-IT")}
               </Text>
             ) : (
-              <View
-                style={[
-                  styles.unpublishedBadge,
-                  {backgroundColor: isDark ? "#374151" : "#f3f4f6"},
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.unpublishedText,
-                    {color: isDark ? "#d1d5db" : "#6b7280"},
-                  ]}
-                >
+              <View className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700">
+                <Text className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
                   Bozza
                 </Text>
               </View>
             )}
             {article.author?.image && (
-              <Image uri={article.author.image} style={styles.authorAvatar} />
+              <Image 
+                uri={article.author.image} 
+                style={{width: 24, height: 24, borderRadius: 12}} 
+              />
             )}
           </View>
 
           {/* Titolo */}
-          <Text
-            style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}
-            numberOfLines={2}
-          >
+          <Text className="text-lg font-semibold leading-6 mb-2" numberOfLines={2}>
             {article.title}
           </Text>
 
           {/* Excerpt */}
           {article.excerpt && (
-            <Text variant="secondary" style={styles.excerpt} numberOfLines={2}>
+            <Text variant="secondary" className="text-sm leading-5 flex-1" numberOfLines={2}>
               {article.excerpt}
             </Text>
           )}
@@ -101,61 +87,3 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    overflow: "hidden",
-  },
-  container: {
-    flexDirection: "row",
-    padding: 16,
-    gap: 16,
-  },
-  imageContainer: {
-    width: "40%",
-    aspectRatio: 1,
-    overflow: "hidden",
-    borderRadius: 8,
-  },
-  coverImage: {
-    width: "100%",
-    height: "100%",
-  },
-  content: {
-    flex: 1,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  date: {
-    fontSize: 12,
-  },
-  unpublishedBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  unpublishedText: {
-    fontSize: 11,
-    fontWeight: "500",
-  },
-  authorAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    lineHeight: 24,
-    marginBottom: 8,
-  },
-  excerpt: {
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
-  },
-});

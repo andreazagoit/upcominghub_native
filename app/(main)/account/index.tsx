@@ -172,12 +172,12 @@ const AccountScreen = () => {
           <Text className="text-3xl font-bold mb-1">
             {user.name}
           </Text>
-          <Text variant="secondary" className="text-sm mb-3">
+          <Text className="text-sm mb-3 text-zinc-600 dark:text-zinc-400">
             @{user.slug}
           </Text>
 
           {user.bio && (
-            <Text variant="secondary" className="text-sm text-center leading-5 px-5">
+            <Text className="text-sm text-center leading-5 px-5 text-zinc-600 dark:text-zinc-400">
               {user.bio}
             </Text>
           )}
@@ -218,7 +218,7 @@ const AccountScreen = () => {
               ) : (
                 <View className="items-center py-10">
                   <Text className="text-6xl mb-4">📅</Text>
-                  <Text variant="secondary" className="text-sm text-center">
+                  <Text className="text-sm text-center text-zinc-600 dark:text-zinc-400">
                     Nessun evento disponibile
                   </Text>
                 </View>
@@ -235,7 +235,7 @@ const AccountScreen = () => {
                 </Text>
 
                 <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
-                  <Text variant="muted" className="text-xs uppercase mb-1">
+                  <Text className="text-xs uppercase mb-1 text-zinc-500">
                     Email
                   </Text>
                   <Text className="text-base">
@@ -245,7 +245,7 @@ const AccountScreen = () => {
 
                 {user.role && (
                   <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
-                    <Text variant="muted" className="text-xs uppercase mb-1">
+                    <Text className="text-xs uppercase mb-1 text-zinc-500">
                       Ruolo
                     </Text>
                     <Text className="text-base">
@@ -256,7 +256,7 @@ const AccountScreen = () => {
 
                 {user.type && (
                   <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
-                    <Text variant="muted" className="text-xs uppercase mb-1">
+                    <Text className="text-xs uppercase mb-1 text-zinc-500">
                       Tipo Account
                     </Text>
                     <Text className="text-base">
@@ -266,7 +266,7 @@ const AccountScreen = () => {
                 )}
 
                 <View className="py-3">
-                  <Text variant="muted" className="text-xs uppercase mb-1">
+                  <Text className="text-xs uppercase mb-1 text-zinc-500">
                     Email Verificata
                   </Text>
                   <Text className={user.emailVerified ? "text-emerald-500" : "text-amber-500"}>

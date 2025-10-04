@@ -55,14 +55,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, onPress}) => {
         </Text>
 
         {item.description && (
-          <Text variant="muted" className="text-xs mb-1.5 leading-tight" numberOfLines={2}>
+          <Text className="text-xs mb-1.5 leading-tight text-zinc-500 dark:text-zinc-500" numberOfLines={2}>
             {item.description}
           </Text>
         )}
 
         {/* Info eventi compatta */}
         {item.events && item.events.length > 0 && item.events[0].yearStart && (
-          <Text variant="muted" className="text-[10px]">
+          <Text className="text-[10px] text-zinc-500 dark:text-zinc-500">
             📅 {item.events[0].dayStart}/{item.events[0].monthStart}/
             {item.events[0].yearStart}
           </Text>

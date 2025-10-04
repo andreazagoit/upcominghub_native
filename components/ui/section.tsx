@@ -3,6 +3,7 @@ import {View} from "react-native";
 import {Text} from "./text";
 import {Button} from "./button";
 import {router} from "expo-router";
+import {cn} from "@/lib/utils";
 
 interface SectionProps {
   /**
@@ -29,6 +30,10 @@ interface SectionProps {
    * Se true, non aggiunge padding orizzontale al contenuto
    */
   noPadding?: boolean;
+  /**
+   * Classi Tailwind custom
+   */
+  className?: string;
 }
 
 export const Section: React.FC<SectionProps> = ({
@@ -38,9 +43,10 @@ export const Section: React.FC<SectionProps> = ({
   viewAllText = "Vedi tutti →",
   children,
   noPadding = false,
+  className,
 }) => {
   return (
-    <View className="mb-8">
+    <View className={cn("mb-8", className)}>
       {/* Header */}
       <View className="px-5 mb-4 flex-row justify-between items-start">
         <View className="flex-1">
