@@ -8,7 +8,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetItemQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
@@ -92,7 +91,7 @@ const ItemDetailScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -107,13 +106,13 @@ const ItemDetailScreen = () => {
             Caricamento item...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error || !item) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -134,12 +133,12 @@ const ItemDetailScreen = () => {
             Torna indietro
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -433,7 +432,7 @@ const ItemDetailScreen = () => {
           </Button>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

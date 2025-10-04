@@ -1,11 +1,10 @@
 import {router} from "expo-router";
 import React from "react";
-import {Pressable, StyleSheet, Text} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {Pressable, StyleSheet, Text, View} from "react-native";
 
 const NotificationOnBoardingScreen = () => {
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>Stay Connected with Push Notifications</Text>
       <Text style={styles.description}>
         We&apos;ll send you a notification when you have a new message.
@@ -29,7 +28,7 @@ const NotificationOnBoardingScreen = () => {
       >
         <Text style={styles.secondaryButtonText}>Ask Me Later</Text>
       </Pressable>
-    </SafeAreaView>
+    </View>
   );
 };
 

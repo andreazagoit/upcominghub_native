@@ -9,7 +9,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetArticlesQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
@@ -151,7 +150,7 @@ const ArticlesScreen = () => {
 
   if (loading && !data) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -166,13 +165,13 @@ const ArticlesScreen = () => {
             Caricamento articoli...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error || !data) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -187,14 +186,14 @@ const ArticlesScreen = () => {
             Riprova
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   const articles = data?.articles?.data || [];
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -236,7 +235,7 @@ const ArticlesScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

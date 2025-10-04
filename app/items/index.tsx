@@ -10,7 +10,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetItemsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
@@ -118,7 +117,7 @@ const ItemsScreen = () => {
 
   if (loading && !data) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -133,13 +132,13 @@ const ItemsScreen = () => {
             Caricamento items...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error || !data) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -154,7 +153,7 @@ const ItemsScreen = () => {
             Riprova
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -162,12 +161,11 @@ const ItemsScreen = () => {
   const pagination = data?.items?.pagination;
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
       ]}
-      edges={["left", "right"]}
     >
       {pagination && (
         <View
@@ -212,7 +210,7 @@ const ItemsScreen = () => {
           columnWrapperStyle={styles.columnWrapper}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

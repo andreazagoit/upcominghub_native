@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 import {Image} from "@/components/ui/image";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetCollectionQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
@@ -140,7 +139,7 @@ const CollectionDetailScreen = () => {
     return (
       <>
         <Stack.Screen options={{title: "Collezione"}} />
-        <SafeAreaView
+        <View
           style={[
             styles.container,
             {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -155,7 +154,7 @@ const CollectionDetailScreen = () => {
               Caricamento collezione...
             </Text>
           </View>
-        </SafeAreaView>
+        </View>
       </>
     );
   }
@@ -164,7 +163,7 @@ const CollectionDetailScreen = () => {
     return (
       <>
         <Stack.Screen options={{title: "Collezione"}} />
-        <SafeAreaView
+        <View
           style={[
             styles.container,
             {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -188,7 +187,7 @@ const CollectionDetailScreen = () => {
               Torna indietro
             </Button>
           </View>
-        </SafeAreaView>
+        </View>
       </>
     );
   }
@@ -260,7 +259,7 @@ const CollectionDetailScreen = () => {
           ),
         }}
       />
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -349,7 +348,7 @@ const CollectionDetailScreen = () => {
           </Button>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
     </>
   );
 };

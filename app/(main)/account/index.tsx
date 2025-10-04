@@ -1,20 +1,12 @@
 import {useLazyQuery} from "@apollo/client/react";
 import {router} from "expo-router";
 import React, {useState} from "react";
-import {
-  ActivityIndicator,
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import {Alert, Pressable, ScrollView, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetUserEventsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
-import {useColorScheme} from "@/hooks/use-color-scheme";
+import {Loading} from "@/components/ui/loading";
 import {Image} from "@/components/ui/image";
 import {EventResumeCard} from "@/components/event-resume-card";
 import {useAuth} from "@/hooks/use-auth";
@@ -58,12 +50,8 @@ type Event = NonNullable<
 >[0];
 
 const AccountScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const {user, logout} = useAuth();
-  const [activeTab, setActiveTab] = useState<
-    "events" | "profile"
-  >("events");
+  const [activeTab, setActiveTab] = useState<"events" | "profile">("events");
   const [allEvents, setAllEvents] = useState<Event[]>([]);
   const [pagination, setPagination] = useState<{
     page: number;
@@ -154,147 +142,92 @@ const AccountScreen = () => {
 
   if (!user) {
     return (
-      <SafeAreaView
-        edges={["top", "left", "right"]}
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text variant="secondary" style={styles.loadingText}>
-            Caricamento...
-          </Text>
-        </View>
-      </SafeAreaView>
+      <View className="flex-1 bg-white dark:bg-black">
+        <Loading message="Caricamento profilo..." />
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      edges={["top", "left", "right"]}
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <View className="flex-1 bg-white dark:bg-black">
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 40}}
+      >
         {/* Header con immagine profilo */}
-        <View style={styles.headerContainer}>
-          <View style={styles.profileImageContainer}>
+        <View className="items-center px-5 pt-5 pb-6">
+          <View className="mb-4">
             {user.image ? (
-              <Image uri={user.image} style={styles.profileImage} />
+              <Image uri={user.image} style={{width: 120, height: 120, borderRadius: 60}} />
             ) : (
-              <View
-                style={[
-                  styles.profileImagePlaceholder,
-                  {backgroundColor: isDark ? "#374151" : "#e5e7eb"},
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.initials,
-                    {color: isDark ? "#3b82f6" : "#2563eb"},
-                  ]}
-                >
+              <View className="w-[120px] h-[120px] rounded-full bg-gray-200 dark:bg-gray-700 justify-center items-center">
+                <Text className="text-5xl font-semibold text-blue-600 dark:text-blue-500">
                   {getInitials(user.name)}
                 </Text>
               </View>
             )}
           </View>
 
-          <Text style={[styles.name, {color: isDark ? "#ffffff" : "#111827"}]}>
+          <Text className="text-3xl font-bold mb-1">
             {user.name}
           </Text>
-          <Text variant="secondary" style={styles.username}>
+          <Text variant="secondary" className="text-sm mb-3">
             @{user.slug}
           </Text>
 
           {user.bio && (
-            <Text variant="secondary" style={styles.bio}>
+            <Text variant="secondary" className="text-sm text-center leading-5 px-5">
               {user.bio}
             </Text>
           )}
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
+        <View className="flex-row px-5 mb-5 gap-3">
           <Pressable
-            style={[
-              styles.tab,
-              activeTab === "events" && {
-                borderBottomWidth: 2,
-                borderBottomColor: isDark ? "#3b82f6" : "#2563eb",
-              },
-            ]}
+            className={`flex-1 py-3 items-center rounded-lg ${
+              activeTab === "events" ? "border-b-2 border-blue-600 dark:border-blue-500" : ""
+            }`}
             onPress={() => setActiveTab("events")}
           >
-            <Text
-              style={[
-                styles.tabText,
-                {
-                  color:
-                    activeTab === "events"
-                      ? isDark
-                        ? "#3b82f6"
-                        : "#2563eb"
-                      : isDark
-                      ? "#9ca3af"
-                      : "#6b7280",
-                },
-              ]}
-            >
+            <Text className={`text-sm font-semibold ${
+              activeTab === "events" 
+                ? "text-blue-600 dark:text-blue-500" 
+                : "text-gray-500 dark:text-gray-400"
+            }`}>
               📅 Eventi ({allEvents.length})
             </Text>
           </Pressable>
 
           <Pressable
-            style={[
-              styles.tab,
-              activeTab === "profile" && {
-                borderBottomWidth: 2,
-                borderBottomColor: isDark ? "#3b82f6" : "#2563eb",
-              },
-            ]}
+            className={`flex-1 py-3 items-center rounded-lg ${
+              activeTab === "profile" ? "border-b-2 border-blue-600 dark:border-blue-500" : ""
+            }`}
             onPress={() => setActiveTab("profile")}
           >
-            <Text
-              style={[
-                styles.tabText,
-                {
-                  color:
-                    activeTab === "profile"
-                      ? isDark
-                        ? "#3b82f6"
-                        : "#2563eb"
-                      : isDark
-                      ? "#9ca3af"
-                      : "#6b7280",
-                },
-              ]}
-            >
+            <Text className={`text-sm font-semibold ${
+              activeTab === "profile" 
+                ? "text-blue-600 dark:text-blue-500" 
+                : "text-gray-500 dark:text-gray-400"
+            }`}>
               👤 Profilo
             </Text>
           </Pressable>
         </View>
 
         {/* Contenuto Tab */}
-        <View style={styles.content}>
+        <View className="px-5">
           {activeTab === "events" && (
-            <View style={styles.section}>
+            <View className="mb-6">
               {allEvents.length > 0 ? (
                 <>
-                  <View style={styles.eventsContainer}>
+                  <View className="gap-3">
                     {allEvents.map((event) => (
                       <EventResumeCard key={event.id} event={event} />
                     ))}
                   </View>
                   {pagination?.hasNextPage && (
-                    <View style={styles.loadMoreContainer}>
+                    <View className="mt-5 items-center">
                       <Button
                         onPress={loadMore}
                         variant="outline"
@@ -306,9 +239,9 @@ const AccountScreen = () => {
                   )}
                 </>
               ) : (
-                <View style={styles.emptyContainer}>
-                  <Text style={styles.emptyIcon}>📅</Text>
-                  <Text variant="secondary" style={styles.emptyText}>
+                <View className="items-center py-10">
+                  <Text className="text-6xl mb-4">📅</Text>
+                  <Text variant="secondary" className="text-sm text-center">
                     Nessun evento disponibile
                   </Text>
                 </View>
@@ -317,98 +250,62 @@ const AccountScreen = () => {
           )}
 
           {activeTab === "profile" && (
-            <View style={styles.section}>
+            <View className="mb-6">
               {/* Info personali */}
-              <View
-                style={[
-                  styles.infoCard,
-                  {
-                    backgroundColor: isDark ? "#09090b" : "#ffffff",
-                    borderColor: isDark ? "#27272a" : "#e5e7eb",
-                  },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.infoCardTitle,
-                    {color: isDark ? "#ffffff" : "#111827"},
-                  ]}
-                >
+              <View className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-5 mb-5">
+                <Text className="text-lg font-semibold mb-4">
                   Informazioni Personali
                 </Text>
 
-                <View style={styles.infoItem}>
-                  <Text variant="muted" style={styles.infoLabel}>
+                <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
+                  <Text variant="muted" className="text-xs uppercase mb-1">
                     Email
                   </Text>
-                  <Text
-                    style={[
-                      styles.infoValue,
-                      {color: isDark ? "#ffffff" : "#111827"},
-                    ]}
-                  >
+                  <Text className="text-base">
                     {user.email}
                   </Text>
                 </View>
 
                 {user.role && (
-                  <View style={styles.infoItem}>
-                    <Text variant="muted" style={styles.infoLabel}>
+                  <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
+                    <Text variant="muted" className="text-xs uppercase mb-1">
                       Ruolo
                     </Text>
-                    <Text
-                      style={[
-                        styles.infoValue,
-                        {color: isDark ? "#ffffff" : "#111827"},
-                      ]}
-                    >
+                    <Text className="text-base">
                       {user.role}
                     </Text>
                   </View>
                 )}
 
                 {user.type && (
-                  <View style={styles.infoItem}>
-                    <Text variant="muted" style={styles.infoLabel}>
+                  <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
+                    <Text variant="muted" className="text-xs uppercase mb-1">
                       Tipo Account
                     </Text>
-                    <Text
-                      style={[
-                        styles.infoValue,
-                        {color: isDark ? "#ffffff" : "#111827"},
-                      ]}
-                    >
+                    <Text className="text-base">
                       {user.type}
                     </Text>
                   </View>
                 )}
 
-                <View style={styles.infoItem}>
-                  <Text variant="muted" style={styles.infoLabel}>
+                <View className="py-3">
+                  <Text variant="muted" className="text-xs uppercase mb-1">
                     Email Verificata
                   </Text>
-                  <Text
-                    style={[
-                      styles.infoValue,
-                      {color: user.emailVerified ? "#10b981" : "#f59e0b"},
-                    ]}
-                  >
+                  <Text className={user.emailVerified ? "text-emerald-500" : "text-amber-500"}>
                     {user.emailVerified ? "✓ Verificata" : "✗ Non verificata"}
                   </Text>
                 </View>
               </View>
 
               {/* Logout button */}
-              <View style={styles.logoutSection}>
+              <View className="pb-10">
                 <Button
                   onPress={handleLogout}
                   variant="outline"
-                  style={[
-                    styles.logoutButton,
-                    {borderColor: isDark ? "#dc2626" : "#ef4444"},
-                  ]}
+                  className="mt-5 border-red-600 dark:border-red-500"
                 >
-                  <Text style={{color: isDark ? "#dc2626" : "#ef4444"}}>
+                  <Text className="text-red-600 dark:text-red-500">
                     🚪 Logout
                   </Text>
                 </Button>
@@ -417,151 +314,8 @@ const AccountScreen = () => {
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  headerContainer: {
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-  },
-  profileImageContainer: {
-    marginBottom: 16,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-  },
-  profileImagePlaceholder: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  initials: {
-    fontSize: 48,
-    fontWeight: "600",
-  },
-  name: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  username: {
-    fontSize: 14,
-    marginBottom: 12,
-  },
-  bio: {
-    fontSize: 14,
-    textAlign: "center",
-    lineHeight: 20,
-    paddingHorizontal: 20,
-  },
-  tabsContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 20,
-    marginBottom: 20,
-    gap: 12,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 8,
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  content: {
-    paddingHorizontal: 20,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  eventsContainer: {
-    gap: 12,
-  },
-  loadMoreContainer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  emptyContainer: {
-    alignItems: "center",
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  infoCard: {
-    borderRadius: 12,
-    borderWidth: 1,
-    padding: 20,
-    marginBottom: 20,
-  },
-  infoCardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-  },
-  infoItem: {
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.05)",
-  },
-  infoLabel: {
-    fontSize: 12,
-    marginBottom: 4,
-    textTransform: "uppercase",
-  },
-  infoValue: {
-    fontSize: 16,
-  },
-  logoutSection: {
-    paddingBottom: 40,
-  },
-  logoutButton: {
-    marginTop: 20,
-  },
-});
 
 export default AccountScreen;

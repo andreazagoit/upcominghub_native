@@ -8,7 +8,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetCollectionsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
@@ -90,7 +89,7 @@ const CollectionsScreen = () => {
 
   if (loading && !data) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -105,13 +104,13 @@ const CollectionsScreen = () => {
             Caricamento collezioni...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error || !data) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -126,19 +125,18 @@ const CollectionsScreen = () => {
             Riprova
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   const collections = data?.collections || [];
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
       ]}
-      edges={["left", "right"]}
     >
       {collections.length > 0 && (
         <View
@@ -183,7 +181,7 @@ const CollectionsScreen = () => {
           columnWrapperStyle={styles.columnWrapper}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 

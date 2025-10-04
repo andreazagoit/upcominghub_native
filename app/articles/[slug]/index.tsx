@@ -9,7 +9,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {GetArticleBySlugQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
@@ -61,7 +60,7 @@ const ArticleDetailScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -76,13 +75,13 @@ const ArticleDetailScreen = () => {
             Caricamento articolo...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -97,13 +96,13 @@ const ArticleDetailScreen = () => {
             Torna indietro
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (!data?.article) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -123,14 +122,14 @@ const ArticleDetailScreen = () => {
             Torna indietro
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   const {article} = data;
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -287,7 +286,7 @@ const ArticleDetailScreen = () => {
           </Button>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

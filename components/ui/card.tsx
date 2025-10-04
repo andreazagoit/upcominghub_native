@@ -1,6 +1,5 @@
 import React from "react";
 import {Pressable, PressableProps, StyleProp, View, ViewProps, ViewStyle} from "react-native";
-import "../../global.css";
 
 interface CardProps extends ViewProps {
   /**

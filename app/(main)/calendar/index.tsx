@@ -1,9 +1,10 @@
 import {Button} from "@/components/ui/button";
 import {Text} from "@/components/ui/text";
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
 import {useColorScheme} from "@/hooks/use-color-scheme";
 import React from "react";
 import {
-  ActivityIndicator,
   Dimensions,
   Image,
   Pressable,
@@ -11,7 +12,6 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {useQuery} from "@apollo/client/react";
 import {graphql} from "@/graphql/generated";
 import type {GetFavoriteCalendarQuery} from "@/graphql/generated/graphql";
@@ -129,55 +129,27 @@ const CalendarScreen = () => {
 
   if (loading && !data) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text variant="secondary" style={styles.loadingText}>
-            Caricamento calendario...
-          </Text>
-        </View>
-      </SafeAreaView>
+      <View className="flex-1 bg-white dark:bg-black">
+        <Loading message="Caricamento calendario..." />
+      </View>
     );
   }
 
   if (error || !data) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text variant="secondary" style={styles.errorText}>
-            {error?.message || "Impossibile caricare il calendario"}
-          </Text>
-          <Button onPress={() => refetch()} style={styles.retryButton}>
-            Riprova
-          </Button>
-        </View>
-      </SafeAreaView>
+      <View className="flex-1 bg-white dark:bg-black">
+        <ErrorView 
+          message={error?.message || "Impossibile caricare il calendario"}
+          onRetry={() => refetch()}
+        />
+      </View>
     );
   }
 
   // Empty state
   if (events.length === 0) {
     return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
+      <View className="flex-1 bg-white dark:bg-black">
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.emptyContainer}
@@ -198,17 +170,12 @@ const CalendarScreen = () => {
             </Button>
           </View>
         </ScrollView>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
+    <View className="flex-1 bg-white dark:bg-black">
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -358,7 +325,7 @@ const CalendarScreen = () => {
         {/* Bottom Spacing */}
         <View style={styles.bottomSpacing} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

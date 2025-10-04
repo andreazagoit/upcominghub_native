@@ -8,7 +8,6 @@ import {
   View,
   Pressable,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
 import {graphql} from "@/graphql/generated";
 import type {
   GetUserProfileQuery,
@@ -167,7 +166,7 @@ const UserProfileScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -182,13 +181,13 @@ const UserProfileScreen = () => {
             Caricamento profilo...
           </Text>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   if (error || !user) {
     return (
-      <SafeAreaView
+      <View
         style={[
           styles.container,
           {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -209,7 +208,7 @@ const UserProfileScreen = () => {
             Torna indietro
           </Button>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -223,7 +222,7 @@ const UserProfileScreen = () => {
   };
 
   return (
-    <SafeAreaView
+    <View
       style={[
         styles.container,
         {backgroundColor: isDark ? "#000000" : "#ffffff"},
@@ -411,7 +410,7 @@ const UserProfileScreen = () => {
           </Button>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

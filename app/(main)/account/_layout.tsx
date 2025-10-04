@@ -7,7 +7,6 @@ export default function Layout() {
         name="index"
         options={{
           title: "Account",
-          headerTransparent: true,
         }}
       />
     </Stack>

@@ -7,8 +7,6 @@ export default function Layout() {
         name="index"
         options={{
           title: "Calendar",
-          headerTransparent: true,
-          headerLargeTitle: true,
         }}
       />
     </Stack>
