@@ -128,7 +128,7 @@ const LoginScreen = () => {
         <View style={styles.content}>
           <View style={styles.header}>
             <Text style={styles.title}>Bentornato</Text>
-            <Text variant="secondary" style={styles.subtitle}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.subtitle}>
               Accedi al tuo account Upcoming Hub
             </Text>
           </View>
@@ -195,7 +195,7 @@ const LoginScreen = () => {
           </View>
 
           <View style={styles.footer}>
-            <Text variant="secondary" style={styles.footerText}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.footerText}>
               Non hai ancora un account?{" "}
             </Text>
             <Button

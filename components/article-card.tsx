@@ -53,12 +53,12 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           {/* Meta in alto */}
           <View className="flex-row justify-between items-center mb-2">
             {article.published ? (
-              <Text variant="muted" className="text-xs">
+              <Text variant="caption" className="text-zinc-500 dark:text-zinc-500">
                 {new Date(article.published).toLocaleDateString("it-IT")}
               </Text>
             ) : (
               <View className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700">
-                <Text className="text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                <Text variant="caption" className="font-medium text-gray-600 dark:text-gray-300">
                   Bozza
                 </Text>
               </View>
@@ -72,13 +72,13 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({
           </View>
 
           {/* Titolo */}
-          <Text className="text-lg font-semibold leading-6 mb-2" numberOfLines={2}>
+          <Text variant="heading" className="leading-6 mb-2" numberOfLines={2}>
             {article.title}
           </Text>
 
           {/* Excerpt */}
           {article.excerpt && (
-            <Text variant="secondary" className="text-sm leading-5 flex-1" numberOfLines={2}>
+            <Text variant="body" className="leading-5 flex-1 text-zinc-600 dark:text-zinc-400" numberOfLines={2}>
               {article.excerpt}
             </Text>
           )}

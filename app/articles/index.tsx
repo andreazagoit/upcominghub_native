@@ -104,7 +104,7 @@ const ArticlesScreen = () => {
         </Text>
         {item.excerpt && (
           <Text
-            variant="secondary"
+            className="text-zinc-600 dark:text-zinc-400"
             style={styles.articleExcerpt}
             numberOfLines={3}
           >
@@ -113,11 +113,11 @@ const ArticlesScreen = () => {
         )}
         <View style={styles.articleMeta}>
           {item.author && (
-            <Text variant="secondary" style={styles.authorName}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.authorName}>
               di {item.author.name}
             </Text>
           )}
-          <Text variant="muted" style={styles.publishDate}>
+          <Text className="text-zinc-500 dark:text-zinc-500" style={styles.publishDate}>
             {new Date(item.createdAt).toLocaleDateString("it-IT")}
           </Text>
         </View>
@@ -160,7 +160,7 @@ const ArticlesScreen = () => {
             size="large"
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
-          <Text variant="secondary" style={styles.loadingText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
             Caricamento articoli...
           </Text>
         </View>
@@ -178,7 +178,7 @@ const ArticlesScreen = () => {
       >
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text variant="secondary" style={styles.errorText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
             {error?.message || "Impossibile caricare gli articoli"}
           </Text>
           <Button onPress={() => refetch()} style={styles.retryButton}>
@@ -207,7 +207,7 @@ const ArticlesScreen = () => {
           ]}
         >
           <Text style={styles.headerTitle}>Articoli</Text>
-          <Text variant="secondary" style={styles.articleCount}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.articleCount}>
             {data.articles.pagination.total} articoli disponibili
           </Text>
         </View>
@@ -221,7 +221,7 @@ const ArticlesScreen = () => {
           >
             Nessun articolo disponibile
           </Text>
-          <Text variant="secondary" style={styles.emptyText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
             Gli articoli saranno disponibili presto
           </Text>
         </View>

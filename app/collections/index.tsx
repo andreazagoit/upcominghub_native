@@ -76,7 +76,7 @@ const CollectionsScreen = () => {
         </View>
         {item.description && (
           <Text
-            variant="secondary"
+            className="text-zinc-600 dark:text-zinc-400"
             style={styles.collectionDescription}
             numberOfLines={3}
           >
@@ -100,7 +100,7 @@ const CollectionsScreen = () => {
             size="large"
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
-          <Text variant="secondary" style={styles.loadingText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
             Caricamento collezioni...
           </Text>
         </View>
@@ -118,7 +118,7 @@ const CollectionsScreen = () => {
       >
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text variant="secondary" style={styles.errorText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
             {error?.message || "Impossibile caricare le collezioni"}
           </Text>
           <Button onPress={() => refetch()} style={styles.retryButton}>
@@ -146,7 +146,7 @@ const CollectionsScreen = () => {
           ]}
         >
           <Text style={styles.headerTitle}>Collezioni</Text>
-          <Text variant="secondary" style={styles.collectionCount}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.collectionCount}>
             {collections.length} collezioni disponibili
           </Text>
         </View>
@@ -160,7 +160,7 @@ const CollectionsScreen = () => {
           >
             Nessuna collezione disponibile
           </Text>
-          <Text variant="secondary" style={styles.emptyText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
             Le collezioni saranno disponibili presto
           </Text>
           <Button

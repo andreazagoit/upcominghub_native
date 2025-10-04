@@ -150,7 +150,7 @@ const CollectionDetailScreen = () => {
               size="large"
               color={isDark ? "#3b82f6" : "#2563eb"}
             />
-            <Text variant="secondary" style={styles.loadingText}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
               Caricamento collezione...
             </Text>
           </View>
@@ -179,7 +179,7 @@ const CollectionDetailScreen = () => {
             >
               {error ? "Errore nel caricamento" : "Collezione non trovata"}
             </Text>
-            <Text variant="secondary" style={styles.errorText}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
               {error?.message ||
                 "La collezione che stai cercando non esiste o è stata rimossa"}
             </Text>
@@ -212,19 +212,19 @@ const CollectionDetailScreen = () => {
           {item.name}
         </Text>
         {item.item && (
-          <Text variant="secondary" style={styles.eventItem}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.eventItem}>
             🎯 {item.item.name}
           </Text>
         )}
         {item.dayStart && item.monthStart && item.yearStart && (
-          <Text variant="muted" style={styles.eventDate}>
+          <Text className="text-zinc-500 dark:text-zinc-500" style={styles.eventDate}>
             📅 {item.dayStart}/{item.monthStart}/{item.yearStart}
             {item.timeStart && ` • ${item.timeStart}`}
           </Text>
         )}
         {item.description && (
           <Text
-            variant="secondary"
+            className="text-zinc-600 dark:text-zinc-400"
             style={styles.eventDescription}
             numberOfLines={2}
           >
@@ -271,7 +271,7 @@ const CollectionDetailScreen = () => {
             {collection.name}
           </Text>
           {collection.description && (
-            <Text variant="secondary" style={styles.description}>
+            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.description}>
               {collection.description}
             </Text>
           )}
@@ -323,7 +323,7 @@ const CollectionDetailScreen = () => {
           {events.length === 0 ? (
             <View style={styles.emptyEventsContainer}>
               <Text style={styles.emptyEventsIcon}>📅</Text>
-              <Text variant="secondary" style={styles.emptyEventsText}>
+              <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyEventsText}>
                 Nessun evento disponibile per questa collezione
               </Text>
             </View>

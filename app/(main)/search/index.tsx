@@ -11,10 +11,10 @@ export default function SearchScreen() {
       />
       <View className="flex-1 justify-center items-center px-5">
         <Text className="text-6xl mb-4">🔍</Text>
-        <Text className="text-xl font-semibold mb-2 text-center">
+        <Text variant="heading" className="mb-2 text-center">
           Funzione in arrivo
         </Text>
-        <Text variant="secondary" className="text-sm text-center">
+        <Text variant="caption" className="text-center text-zinc-600 dark:text-zinc-400">
           La ricerca sarà presto disponibile
         </Text>
       </View>

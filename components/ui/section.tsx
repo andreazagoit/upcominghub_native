@@ -50,15 +50,15 @@ export const Section: React.FC<SectionProps> = ({
       {/* Header */}
       <View className="px-5 mb-4 flex-row justify-between items-start">
         <View className="flex-1">
-          <Text className="text-xl font-semibold mb-1">{title}</Text>
+          <Text variant="subtitle" className="mb-1">{title}</Text>
           {description && (
-            <Text variant="secondary" className="text-sm">
+            <Text variant="caption" className="text-zinc-600 dark:text-zinc-400">
               {description}
             </Text>
           )}
         </View>
         {viewAllLink && (
-          <Button variant="ghost" size="sm" onPress={() => router.push(viewAllLink)}>
+          <Button variant="ghost" size="sm" onPress={() => router.push(viewAllLink as any)}>
             {viewAllText}
           </Button>
         )}

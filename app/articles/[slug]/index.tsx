@@ -71,7 +71,7 @@ const ArticleDetailScreen = () => {
             size="large"
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
-          <Text variant="secondary" style={styles.loadingText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
             Caricamento articolo...
           </Text>
         </View>
@@ -89,7 +89,7 @@ const ArticleDetailScreen = () => {
       >
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text variant="secondary" style={styles.errorText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
             {error.message}
           </Text>
           <Button onPress={() => router.back()} style={styles.backButton}>
@@ -115,7 +115,7 @@ const ArticleDetailScreen = () => {
           >
             Articolo non trovato
           </Text>
-          <Text variant="secondary" style={styles.errorText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
             L&apos;articolo che stai cercando non esiste o è stato rimosso
           </Text>
           <Button onPress={() => router.back()} style={styles.backButton}>
@@ -166,10 +166,10 @@ const ArticleDetailScreen = () => {
                   />
                 )}
                 <View>
-                  <Text variant="secondary" style={styles.authorName}>
+                  <Text className="text-zinc-600 dark:text-zinc-400" style={styles.authorName}>
                     di {article.author.name}
                   </Text>
-                  <Text variant="muted" style={styles.publishDate}>
+                  <Text className="text-zinc-500 dark:text-zinc-500" style={styles.publishDate}>
                     {new Date(article.createdAt).toLocaleDateString("it-IT", {
                       year: "numeric",
                       month: "long",
@@ -192,7 +192,7 @@ const ArticleDetailScreen = () => {
               ]}
             >
               <Text
-                variant="secondary"
+                className="text-zinc-600 dark:text-zinc-400"
                 style={[
                   styles.excerpt,
                   {color: isDark ? "#d1d5db" : "#374151"},
@@ -256,7 +256,7 @@ const ArticleDetailScreen = () => {
               {borderTopColor: isDark ? "#374151" : "#e5e7eb"},
             ]}
           >
-            <Text variant="muted" style={styles.footerText}>
+            <Text className="text-zinc-500 dark:text-zinc-500" style={styles.footerText}>
               Pubblicato il{" "}
               {new Date(article.createdAt).toLocaleDateString("it-IT", {
                 year: "numeric",
@@ -265,7 +265,7 @@ const ArticleDetailScreen = () => {
               })}
             </Text>
             {article.updatedAt !== article.createdAt && (
-              <Text variant="muted" style={styles.footerText}>
+              <Text className="text-zinc-500 dark:text-zinc-500" style={styles.footerText}>
                 Ultimo aggiornamento{" "}
                 {new Date(article.updatedAt).toLocaleDateString("it-IT", {
                   year: "numeric",

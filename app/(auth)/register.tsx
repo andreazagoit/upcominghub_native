@@ -112,7 +112,7 @@ const RegisterScreen = () => {
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>Create Account</Text>
-          <Text variant="secondary" style={styles.subtitle}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.subtitle}>
             Sign up to get started
           </Text>
         </View>
@@ -171,7 +171,7 @@ const RegisterScreen = () => {
         </View>
 
         <View style={styles.footer}>
-          <Text variant="secondary" style={styles.footerText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.footerText}>
             Already have an account?{" "}
           </Text>
           <Button

@@ -67,25 +67,25 @@ export const EventCard: React.FC<EventCardProps> = ({
         </View>
       )}
       <View className="p-4">
-        <Text className="text-lg font-semibold mb-1.5" numberOfLines={2}>
+        <Text variant="heading" className="mb-1.5" numberOfLines={2}>
           {event.name}
         </Text>
 
         {event.item && (
-          <Text variant="secondary" className="text-xs mb-1">
+          <Text variant="caption" className="mb-1 text-zinc-600 dark:text-zinc-400">
             🎯 {event.item.name}
           </Text>
         )}
 
         {event.dayStart && event.monthStart && event.yearStart && (
-          <Text variant="muted" className="text-xs mb-2">
+          <Text variant="caption" className="mb-2 text-zinc-500 dark:text-zinc-500">
             📅 {event.dayStart}/{event.monthStart}/{event.yearStart}
             {event.timeStart && ` • ${event.timeStart}`}
           </Text>
         )}
 
         {event.description && (
-          <Text variant="secondary" className="text-sm leading-5 mb-2" numberOfLines={2}>
+          <Text variant="body" className="leading-5 mb-2 text-zinc-600 dark:text-zinc-400" numberOfLines={2}>
             {event.description}
           </Text>
         )}
@@ -97,7 +97,7 @@ export const EventCard: React.FC<EventCardProps> = ({
                 key={avail.id}
                 className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700"
               >
-                <Text className="text-[11px] font-medium text-gray-700 dark:text-gray-300">
+                <Text variant="caption" className="font-medium text-gray-700 dark:text-gray-300">
                   {avail.platform}
                 </Text>
               </View>

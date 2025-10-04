@@ -35,20 +35,20 @@ export const EventResumeCard: React.FC<EventResumeCardProps> = ({
     <View className="flex-row p-3 gap-3">
       {/* Cover Image */}
       <View className="w-16 h-16 rounded-xl overflow-hidden">
-        <Image uri={event.cover} style={{width: 64, height: 64}} />
+        <Image uri={event.cover} style={{width: "100%", height: "100%"}} />
       </View>
 
       {/* Event Info */}
       <View className="flex-1 justify-center">
         {/* Date - Prima del nome */}
         {event.dayStart && event.monthStart && event.yearStart && (
-          <Text variant="muted" className="text-xs mb-1.5">
+          <Text variant="caption" className="mb-1.5 text-zinc-500 dark:text-zinc-500">
             {event.dayStart}/{event.monthStart}/{event.yearStart}
             {event.timeStart && ` • ${event.timeStart}`}
           </Text>
         )}
 
-        <Text className="text-base font-semibold mb-1.5 leading-snug" numberOfLines={2}>
+        <Text variant="heading" className="mb-1.5 leading-snug" numberOfLines={2}>
           {event.name}
         </Text>
 
@@ -60,7 +60,7 @@ export const EventResumeCard: React.FC<EventResumeCardProps> = ({
                 key={avail.id}
                 className="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-700"
               >
-                <Text className="text-[10px] font-medium text-gray-700 dark:text-gray-300">
+                <Text variant="caption" className="font-medium text-gray-700 dark:text-gray-300">
                   {avail.platform}
                 </Text>
               </View>

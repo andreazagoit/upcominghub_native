@@ -50,19 +50,19 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, onPress}) => {
 
       {/* Testi sotto */}
       <View className="p-2.5">
-        <Text className="text-sm font-semibold mb-1 leading-tight" numberOfLines={2}>
+        <Text variant="heading" className="mb-1 leading-tight" numberOfLines={2}>
           {item.name}
         </Text>
 
         {item.description && (
-          <Text className="text-xs mb-1.5 leading-tight text-zinc-500 dark:text-zinc-500" numberOfLines={2}>
+          <Text variant="body" className="mb-1.5 leading-tight text-zinc-600 dark:text-zinc-400" numberOfLines={2}>
             {item.description}
           </Text>
         )}
 
         {/* Info eventi compatta */}
         {item.events && item.events.length > 0 && item.events[0].yearStart && (
-          <Text className="text-[10px] text-zinc-500 dark:text-zinc-500">
+          <Text variant="caption" className="text-zinc-500 dark:text-zinc-500">
             📅 {item.events[0].dayStart}/{item.events[0].monthStart}/
             {item.events[0].yearStart}
           </Text>

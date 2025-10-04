@@ -26,10 +26,10 @@ export const ErrorView: React.FC<ErrorViewProps> = ({
   return (
     <View className="flex-1 justify-center items-center p-5">
       <Text className="text-6xl mb-4">⚠️</Text>
-      <Text className="text-lg font-semibold mb-2 text-center">
+      <Text variant="subtitle" className="mb-2 text-center">
         Oops!
       </Text>
-      <Text variant="muted" className="text-center mb-6">
+      <Text className="text-center mb-6 text-zinc-600 dark:text-zinc-400">
         {message}
       </Text>
       {onRetry && (

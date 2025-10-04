@@ -89,7 +89,7 @@ const ItemsScreen = () => {
         </Text>
         {item.description && (
           <Text
-            variant="secondary"
+            className="text-zinc-600 dark:text-zinc-400"
             style={styles.itemDescription}
             numberOfLines={3}
           >
@@ -98,12 +98,12 @@ const ItemsScreen = () => {
         )}
         {item.events && item.events.length > 0 && (
           <View style={styles.eventsInfo}>
-            <Text variant="muted" style={styles.eventsCount}>
+            <Text className="text-zinc-500 dark:text-zinc-500" style={styles.eventsCount}>
               📅 {item.events.length} event
               {item.events.length !== 1 ? "i" : "o"}
             </Text>
             {item.events[0].yearStart && (
-              <Text variant="muted" style={styles.nextEvent}>
+              <Text className="text-zinc-500 dark:text-zinc-500" style={styles.nextEvent}>
                 Prossimo: {item.events[0].dayStart}/{item.events[0].monthStart}/
                 {item.events[0].yearStart}
               </Text>
@@ -127,7 +127,7 @@ const ItemsScreen = () => {
             size="large"
             color={isDark ? "#3b82f6" : "#2563eb"}
           />
-          <Text variant="secondary" style={styles.loadingText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
             Caricamento items...
           </Text>
         </View>
@@ -145,7 +145,7 @@ const ItemsScreen = () => {
       >
         <View style={styles.errorContainer}>
           <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text variant="secondary" style={styles.errorText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
             {error?.message || "Impossibile caricare gli items"}
           </Text>
           <Button onPress={() => refetch()} style={styles.retryButton}>
@@ -174,7 +174,7 @@ const ItemsScreen = () => {
           ]}
         >
           <Text style={styles.headerTitle}>Items</Text>
-          <Text variant="secondary" style={styles.itemCount}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.itemCount}>
             {pagination.total} items disponibili
           </Text>
         </View>
@@ -188,7 +188,7 @@ const ItemsScreen = () => {
           >
             Nessun item disponibile
           </Text>
-          <Text variant="secondary" style={styles.emptyText}>
+          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
             Gli items saranno disponibili presto
           </Text>
           <Button

@@ -176,10 +176,10 @@ const CalendarScreen = () => {
           
           <View className="items-center py-12 px-5">
             <Text className="text-6xl mb-4">📅</Text>
-            <Text className="text-xl font-semibold mb-2 text-center">
+            <Text variant="heading" className="mb-2 text-center">
             Nessun rilascio nei preferiti
           </Text>
-            <Text variant="secondary" className="text-sm text-center mb-6">
+            <Text variant="caption" className="text-center mb-6 text-zinc-600 dark:text-zinc-400">
               Aggiungi item e collezioni ai tuoi preferiti per vedere i loro rilasci qui.
           </Text>
             <View className="gap-3 w-full max-w-xs">
@@ -216,12 +216,12 @@ const CalendarScreen = () => {
             .sort(([a], [b]) => parseInt(a) - parseInt(b))
             .map(([year, months]) => (
               <View key={year} className="mb-8">
-                <Text className="text-2xl font-bold mb-6">{year}</Text>
+                <Text variant="title" className="mb-6 font-bold">{year}</Text>
                 {Object.entries(months)
                   .sort(([a], [b]) => parseInt(a) - parseInt(b))
                   .map(([month, days]) => (
                     <View key={month} className="mb-6">
-                      <Text className="text-xl font-semibold mb-4">
+                      <Text variant="heading" className="mb-4">
                         {new Date(2025, parseInt(month) - 1)
                           .toLocaleDateString("it-IT", {month: "long"})
                           .toUpperCase()}

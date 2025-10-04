@@ -53,9 +53,9 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
     <View className={cn("px-5 pt-4 pb-6", className)} style={{paddingTop: insets.top + 16}}>
       <View className="flex-row justify-between items-start">
         <View className="flex-1">
-          <Text className="text-3xl font-bold mb-1">{title}</Text>
+          <Text variant="display" className="mb-1">{title}</Text>
           {description && (
-            <Text className="text-base text-zinc-600 dark:text-zinc-400">
+            <Text className="text-zinc-600 dark:text-zinc-400">
               {description}
             </Text>
           )}

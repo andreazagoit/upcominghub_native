@@ -21,7 +21,7 @@ export const Loading: React.FC<LoadingProps> = ({
     <View className="flex-1 justify-center items-center p-5">
       <ActivityIndicator size={size} className="mb-4" />
       {message && (
-        <Text variant="muted" className="text-center">
+        <Text className="text-center text-zinc-600 dark:text-zinc-400">
           {message}
         </Text>
       )}

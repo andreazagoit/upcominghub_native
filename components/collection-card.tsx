@@ -45,17 +45,17 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
     >
       <View className="p-4">
         <View className="flex-row justify-between items-start mb-2">
-          <Text className="text-base font-semibold flex-1 leading-snug" numberOfLines={2}>
+          <Text variant="heading" className="flex-1 leading-snug" numberOfLines={2}>
             {collection.name}
           </Text>
           {collection.isFeatured && (
             <View className="px-2 py-1 rounded-xl ml-2 bg-blue-600 dark:bg-blue-600">
-              <Text className="text-xs">⭐</Text>
+              <Text variant="caption">⭐</Text>
             </View>
           )}
         </View>
         {collection.description && (
-          <Text variant="secondary" className="text-sm leading-5" numberOfLines={2}>
+          <Text variant="body" className="leading-5 text-zinc-600 dark:text-zinc-400" numberOfLines={2}>
             {collection.description}
           </Text>
         )}

@@ -169,15 +169,15 @@ const AccountScreen = () => {
             )}
           </View>
 
-          <Text className="text-3xl font-bold mb-1">
+          <Text variant="display" className="mb-1">
             {user.name}
           </Text>
-          <Text className="text-sm mb-3 text-zinc-600 dark:text-zinc-400">
+          <Text variant="caption" className="mb-3 text-zinc-600 dark:text-zinc-400">
             @{user.slug}
           </Text>
 
           {user.bio && (
-            <Text className="text-sm text-center leading-5 px-5 text-zinc-600 dark:text-zinc-400">
+            <Text variant="caption" className="text-center leading-5 px-5 text-zinc-600 dark:text-zinc-400">
               {user.bio}
             </Text>
           )}
@@ -218,7 +218,7 @@ const AccountScreen = () => {
               ) : (
                 <View className="items-center py-10">
                   <Text className="text-6xl mb-4">📅</Text>
-                  <Text className="text-sm text-center text-zinc-600 dark:text-zinc-400">
+                  <Text variant="caption" className="text-center text-zinc-600 dark:text-zinc-400">
                     Nessun evento disponibile
                   </Text>
                 </View>
@@ -230,25 +230,25 @@ const AccountScreen = () => {
             <View className="mb-6">
               {/* Info personali */}
               <View className="rounded-xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 p-5 mb-5">
-                <Text className="text-lg font-semibold mb-4">
+                <Text variant="subtitle" className="mb-4">
                   Informazioni Personali
                 </Text>
 
                 <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
-                  <Text className="text-xs uppercase mb-1 text-zinc-500">
+                  <Text variant="caption" className="uppercase mb-1 text-zinc-500 dark:text-zinc-500">
                     Email
                   </Text>
-                  <Text className="text-base">
+                  <Text variant="body">
                     {user.email}
                   </Text>
                 </View>
 
                 {user.role && (
                   <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
-                    <Text className="text-xs uppercase mb-1 text-zinc-500">
+                    <Text variant="caption" className="uppercase mb-1 text-zinc-500 dark:text-zinc-500">
                       Ruolo
                     </Text>
-                    <Text className="text-base">
+                    <Text variant="body">
                       {user.role}
                     </Text>
                   </View>
@@ -256,17 +256,17 @@ const AccountScreen = () => {
 
                 {user.type && (
                   <View className="py-3 border-b border-gray-100 dark:border-zinc-900">
-                    <Text className="text-xs uppercase mb-1 text-zinc-500">
+                    <Text variant="caption" className="uppercase mb-1 text-zinc-500 dark:text-zinc-500">
                       Tipo Account
                     </Text>
-                    <Text className="text-base">
+                    <Text variant="body">
                       {user.type}
                     </Text>
                   </View>
                 )}
 
                 <View className="py-3">
-                  <Text className="text-xs uppercase mb-1 text-zinc-500">
+                  <Text variant="caption" className="uppercase mb-1 text-zinc-500 dark:text-zinc-500">
                     Email Verificata
                   </Text>
                   <Text className={user.emailVerified ? "text-emerald-500" : "text-amber-500"}>

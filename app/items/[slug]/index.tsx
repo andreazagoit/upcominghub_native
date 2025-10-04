@@ -119,7 +119,7 @@ const ItemDetailScreen = () => {
 
           {/* Content Hero */}
             <View className="pt-5">
-              <Text className="text-3xl font-bold mb-2 leading-9">
+              <Text variant="display" className="mb-2 leading-9">
               {item.name}
             </Text>
             {item.description && (
@@ -146,7 +146,7 @@ const ItemDetailScreen = () => {
                     <Text className="text-xs mb-0.5 text-gray-500 dark:text-gray-400">
                     Creato da
                   </Text>
-                    <Text className="text-sm font-semibold">
+                    <Text variant="caption" className="font-semibold">
                     {item.author.name}
                   </Text>
                 </View>
@@ -164,10 +164,10 @@ const ItemDetailScreen = () => {
                     <Text className="text-xl">📅</Text>
                 </View>
                   <View className="flex-1">
-                    <Text className="text-base font-semibold mb-0.5">
+                    <Text variant="label" className="mb-0.5">
                     Disponibilità
                   </Text>
-                    <Text className="text-xs text-zinc-600 dark:text-zinc-400">
+                    <Text variant="caption" className="text-zinc-600 dark:text-zinc-400">
                     {isAvailable ? "Disponibile dal" : "In arrivo"}
                   </Text>
                 </View>
@@ -184,7 +184,7 @@ const ItemDetailScreen = () => {
                     {isAvailable ? "Disponibile" : "Prossimamente"}
                   </Text>
                 </View>
-                  <Text className="text-base font-semibold">
+                  <Text variant="label">
                   {eventDate.toLocaleDateString("it-IT", {
                     year: "numeric",
                     month: "long",
@@ -216,7 +216,7 @@ const ItemDetailScreen = () => {
                   <Text className="text-xl">📦</Text>
               </View>
               <View>
-                  <Text className="text-base font-semibold mb-0.5">
+                  <Text variant="label" className="mb-0.5">
                   Informazioni
                 </Text>
                   <Text className="text-xs text-zinc-600 dark:text-zinc-400">
@@ -255,7 +255,7 @@ const ItemDetailScreen = () => {
                   <Text className="text-xs text-zinc-500">
                   Creato
                 </Text>
-                  <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  <Text variant="label" className="text-zinc-600 dark:text-zinc-400">
                   {new Date(item.createdAt).toLocaleDateString("it-IT", {
                     year: "numeric",
                     month: "long",
@@ -269,7 +269,7 @@ const ItemDetailScreen = () => {
                   <Text className="text-xs text-zinc-500">
                   Ultimo aggiornamento
                 </Text>
-                  <Text className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  <Text variant="label" className="text-zinc-600 dark:text-zinc-400">
                   {new Date(item.updatedAt).toLocaleDateString("it-IT", {
                     year: "numeric",
                     month: "long",
@@ -284,7 +284,7 @@ const ItemDetailScreen = () => {
         {/* Events Section */}
         {item.events && item.events.length > 0 && (
             <View className="mb-6 px-5">
-              <Text className="text-xl font-semibold mb-4">
+              <Text variant="heading" className="mb-4">
               Eventi
             </Text>
               <View>
@@ -302,7 +302,7 @@ const ItemDetailScreen = () => {
         {/* Content */}
         {item.content && (
             <View className="mb-6 px-5">
-              <Text className="text-xl font-semibold mb-4">
+              <Text variant="heading" className="mb-4">
               Descrizione
             </Text>
               <Text className="text-base leading-7 text-gray-700 dark:text-gray-300">
@@ -333,7 +333,7 @@ const ItemDetailScreen = () => {
           <View className="p-5">
             {/* Header */}
             <View className="mb-4">
-              <Text className="text-2xl font-bold mb-2">
+              <Text variant="title" className="mb-2 font-bold">
                 {selectedEvent.name || "Evento"}
               </Text>
               {selectedEvent.description && (
@@ -357,7 +357,7 @@ const ItemDetailScreen = () => {
             {selectedEvent.yearStart && selectedEvent.monthStart && selectedEvent.dayStart && (
               <View className="mb-4">
                 <Text className="text-xs mb-1 text-zinc-500">Data</Text>
-                <Text className="text-base font-semibold">
+                <Text variant="label">
                   📅 {selectedEvent.dayStart}/{selectedEvent.monthStart}/{selectedEvent.yearStart}
                   {selectedEvent.timeStart && ` - ${selectedEvent.timeStart}`}
                 </Text>
