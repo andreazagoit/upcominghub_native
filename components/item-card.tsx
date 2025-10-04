@@ -1,11 +1,9 @@
 import React from "react";
-import {StyleSheet, View, type DimensionValue} from "react-native";
+import {View} from "react-native";
 import {Text} from "@/components/ui/text";
 import {Image} from "@/components/ui/image";
 import {Card} from "@/components/ui/card";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
-
 interface Item {
   id: string;
   slug: string;
@@ -24,19 +22,12 @@ interface Item {
 interface ItemCardProps {
   item: Item;
   /**
-   * Larghezza della card (opzionale, default: auto)
-   */
-  width?: DimensionValue;
-  /**
    * Callback custom onPress (sovrascrive la navigazione default)
    */
   onPress?: () => void;
 }
 
-export const ItemCard: React.FC<ItemCardProps> = ({item, width, onPress}) => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
+export const ItemCard: React.FC<ItemCardProps> = ({item, onPress}) => {
   const handlePress = () => {
     if (onPress) {
       onPress();
@@ -49,31 +40,27 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, width, onPress}) => {
     <Card
       pressable={true}
       onPress={handlePress}
-      style={[styles.card, width ? {width} : null]}
+      className="overflow-hidden w-40"
     >
       {/* Immagine in alto */}
-      <View style={styles.imageContainer}>
-        <Image uri={item.cover} style={styles.cover} />
-      </View>
+      {/* <Image uri={item.cover} className="w-full h-full" /> */}
+
 
       {/* Testi sotto */}
-      <View style={styles.content}>
-        <Text
-          style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}
-          numberOfLines={2}
-        >
+      <View className="p-2.5">
+        <Text className="text-sm font-semibold mb-1 leading-tight" numberOfLines={2}>
           {item.name}
         </Text>
 
         {item.description && (
-          <Text variant="muted" style={styles.description} numberOfLines={2}>
+          <Text variant="muted" className="text-xs mb-1.5 leading-tight" numberOfLines={2}>
             {item.description}
           </Text>
         )}
 
         {/* Info eventi compatta */}
         {item.events && item.events.length > 0 && item.events[0].yearStart && (
-          <Text variant="muted" style={styles.eventInfo}>
+          <Text variant="muted" className="text-[10px]">
             📅 {item.events[0].dayStart}/{item.events[0].monthStart}/
             {item.events[0].yearStart}
           </Text>
@@ -82,33 +69,3 @@ export const ItemCard: React.FC<ItemCardProps> = ({item, width, onPress}) => {
     </Card>
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    overflow: "hidden",
-  },
-  imageContainer: {
-    width: "100%",
-  },
-  cover: {
-    width: "100%",
-    aspectRatio: 1, // Immagine quadrata
-  },
-  content: {
-    padding: 10,
-  },
-  title: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 4,
-    lineHeight: 18,
-  },
-  description: {
-    fontSize: 12,
-    marginBottom: 6,
-    lineHeight: 16,
-  },
-  eventInfo: {
-    fontSize: 10,
-  },
-});

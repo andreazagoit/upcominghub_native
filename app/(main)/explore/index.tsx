@@ -1,21 +1,17 @@
 import {Button} from "@/components/ui/button";
 import {Text} from "@/components/ui/text";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import {router} from "expo-router";
 import React from "react";
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import {ActivityIndicator, ScrollView, View} from "react-native";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {useQuery} from "@apollo/client/react";
 import {graphql} from "@/graphql/generated";
 import type {GetHomepageQuery} from "@/graphql/generated/graphql";
 import {ItemCard} from "@/components/item-card";
+import {ArticleCard} from "@/components/article-card";
+import {CollectionCard} from "@/components/collection-card";
+import {EventResumeCard} from "@/components/event-resume-card";
+import "../../../global.css";
 
 const GET_HOMEPAGE = graphql(`
   query GetHomepage {
@@ -81,9 +77,6 @@ const GET_HOMEPAGE = graphql(`
 `);
 
 const ExploreScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const {loading, error, data} = useQuery<GetHomepageQuery>(GET_HOMEPAGE, {
     fetchPolicy: "cache-and-network",
   });
@@ -92,19 +85,10 @@ const ExploreScreen = () => {
 
   if (loading && !data) {
     return (
-      <SafeAreaView
-        edges={["top", "left", "right"]}
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text variant="secondary" style={styles.loadingText}>
+      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-white dark:bg-black">
+        <View className="flex-1 justify-center items-center p-5">
+          <ActivityIndicator size="large" className="text-blue-600 dark:text-blue-500" />
+          <Text variant="secondary" className="mt-4 text-base">
             Caricamento...
           </Text>
         </View>
@@ -114,50 +98,36 @@ const ExploreScreen = () => {
 
   if (error || !homepage) {
     return (
-      <SafeAreaView
-        edges={["top", "left", "right"]}
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text variant="secondary" style={styles.errorText}>
+      <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-white dark:bg-black">
+        <View className="flex-1 justify-center items-center p-5">
+          <Text className="text-xl font-semibold mb-2">Errore nel caricamento</Text>
+          <Text variant="secondary" className="text-sm text-center mb-5">
             {error?.message || "Impossibile caricare i contenuti"}
           </Text>
-          <Button onPress={() => {}} style={styles.retryButton}>
-            Riprova
-          </Button>
+          <Button onPress={() => {}}>Riprova</Button>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView
-      edges={["top", "left", "right"]}
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
+    <SafeAreaView edges={["top", "left", "right"]} className="flex-1 bg-white dark:bg-black">
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Esplora</Text>
-          <Text variant="secondary" style={styles.subtitle}>
+        <View className="px-5 pt-4 pb-6">
+          <Text className="text-3xl font-bold mb-1">Esplora</Text>
+          <Text variant="secondary" className="text-base">
             Scopri le ultime novità e i prossimi rilasci
           </Text>
         </View>
 
         {/* Popular Items */}
         {homepage.popularItems && homepage.popularItems.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
+          <View className="mb-8">
+            <View className="px-5 mb-4 flex-row justify-between items-start">
               <View>
-                <Text style={styles.sectionTitle}>Items Popolari</Text>
-                <Text variant="secondary" style={styles.sectionDescription}>
+                <Text className="text-xl font-semibold mb-1">Items Popolari</Text>
+                <Text variant="secondary" className="text-sm">
                   Gli items più amati dalla community
                 </Text>
               </View>
@@ -172,10 +142,10 @@ const ExploreScreen = () => {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalScroll}
+              contentContainerStyle={{paddingHorizontal: 20, gap: 12}}
             >
               {homepage.popularItems.map((item: any) => (
-                <ItemCard key={item.id} item={item} width={160} />
+                <ItemCard key={item.id} item={item} />
               ))}
             </ScrollView>
           </View>
@@ -183,11 +153,11 @@ const ExploreScreen = () => {
 
         {/* Latest Articles */}
         {homepage.latestArticles && homepage.latestArticles.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
+          <View className="mb-8">
+            <View className="px-5 mb-4 flex-row justify-between items-start">
               <View>
-                <Text style={styles.sectionTitle}>Ultimi Articoli</Text>
-                <Text variant="secondary" style={styles.sectionDescription}>
+                <Text className="text-xl font-semibold mb-1">Ultimi Articoli</Text>
+                <Text variant="secondary" className="text-sm">
                   Le notizie più recenti dal mondo tech
                 </Text>
               </View>
@@ -199,43 +169,9 @@ const ExploreScreen = () => {
                 Vedi tutti →
               </Button>
             </View>
-            <View style={styles.articlesGrid}>
+            <View className="px-5 gap-4">
               {homepage.latestArticles.slice(0, 4).map((article: any) => (
-                <Pressable
-                  key={article.id}
-                  style={[
-                    styles.articleCard,
-                    {backgroundColor: isDark ? "#09090b" : "#ffffff"},
-                  ]}
-                  onPress={() => router.push(`/articles/${article.slug}`)}
-                >
-                  {article.cover && (
-                    <Image
-                      source={{uri: article.cover}}
-                      style={styles.articleImage}
-                      resizeMode="cover"
-                    />
-                  )}
-                  <View style={styles.articleContent}>
-                    <Text style={styles.articleTitle} numberOfLines={2}>
-                      {article.title}
-                    </Text>
-                    {article.excerpt && (
-                      <Text
-                        variant="secondary"
-                        style={styles.articleExcerpt}
-                        numberOfLines={2}
-                      >
-                        {article.excerpt}
-                      </Text>
-                    )}
-                    {article.author && (
-                      <Text variant="muted" style={styles.articleAuthor}>
-                        di {article.author.name}
-                      </Text>
-                    )}
-                  </View>
-                </Pressable>
+                <ArticleCard key={article.id} article={article} />
               ))}
             </View>
           </View>
@@ -244,11 +180,11 @@ const ExploreScreen = () => {
         {/* Trending Collections */}
         {homepage.trendingCollections &&
           homepage.trendingCollections.length > 0 && (
-            <View style={styles.section}>
-              <View style={styles.sectionHeader}>
+            <View className="mb-8">
+              <View className="px-5 mb-4 flex-row justify-between items-start">
                 <View>
-                  <Text style={styles.sectionTitle}>Collezioni</Text>
-                  <Text variant="secondary" style={styles.sectionDescription}>
+                  <Text className="text-xl font-semibold mb-1">Collezioni</Text>
+                  <Text variant="secondary" className="text-sm">
                     Le collezioni più popolari del momento
                   </Text>
                 </View>
@@ -263,32 +199,19 @@ const ExploreScreen = () => {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.horizontalScroll}
+                contentContainerStyle={{paddingHorizontal: 20, gap: 12}}
               >
                 {homepage.trendingCollections.map((collection: any) => (
-                  <Pressable
+                  <CollectionCard
                     key={collection.id}
-                    style={[
-                      styles.collectionCard,
-                      {backgroundColor: isDark ? "#09090b" : "#ffffff"},
-                    ]}
-                    onPress={() =>
-                      router.push(`/collections/${collection.slug}`)
-                    }
-                  >
-                    <Text style={styles.collectionTitle}>
-                      {collection.name}
-                    </Text>
-                    {collection.description && (
-                      <Text
-                        variant="secondary"
-                        style={styles.collectionDescription}
-                        numberOfLines={3}
-                      >
-                        {collection.description}
-                      </Text>
-                    )}
-                  </Pressable>
+                    collection={{
+                      slug: collection.slug,
+                      name: collection.name,
+                      description: collection.description,
+                      isFeatured: false,
+                    }}
+                    width={280}
+                  />
                 ))}
               </ScrollView>
             </View>
@@ -296,227 +219,26 @@ const ExploreScreen = () => {
 
         {/* Upcoming Events */}
         {homepage.upcomingEvents && homepage.upcomingEvents.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <View>
-                <Text style={styles.sectionTitle}>Prossimi Eventi</Text>
-                <Text variant="secondary" style={styles.sectionDescription}>
-                  Cosa aspettarsi nei prossimi mesi
-                </Text>
-              </View>
+          <View className="mb-8">
+            <View className="px-5 mb-4">
+              <Text className="text-xl font-semibold mb-1">Prossimi Eventi</Text>
+              <Text variant="secondary" className="text-sm">
+                Cosa aspettarsi nei prossimi mesi
+              </Text>
             </View>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalScroll}
-            >
-              {homepage.upcomingEvents.map((event: any) => (
-                <Pressable
-                  key={event.id}
-                  style={[
-                    styles.eventCard,
-                    {backgroundColor: isDark ? "#09090b" : "#ffffff"},
-                  ]}
-                  onPress={() =>
-                    event.item?.slug && router.push(`/items/${event.item.slug}`)
-                  }
-                >
-                  <View style={styles.eventContent}>
-                    <Text style={styles.eventTitle} numberOfLines={2}>
-                      {event.name}
-                    </Text>
-                    {event.description && (
-                      <Text
-                        variant="secondary"
-                        style={styles.eventDescription}
-                        numberOfLines={3}
-                      >
-                        {event.description}
-                      </Text>
-                    )}
-                    {event.dayStart && event.monthStart && event.yearStart && (
-                      <Text variant="muted" style={styles.eventDate}>
-                        📅 {event.dayStart}/{event.monthStart}/{event.yearStart}
-                      </Text>
-                    )}
-                    {event.item && (
-                      <Text variant="muted" style={styles.eventItem}>
-                        🎯 {event.item.name}
-                      </Text>
-                    )}
-                  </View>
-                </Pressable>
+            <View className="px-5 gap-3">
+              {homepage.upcomingEvents.slice(0, 5).map((event: any) => (
+                <EventResumeCard key={event.id} event={event} />
               ))}
-            </ScrollView>
+            </View>
           </View>
         )}
 
         {/* Bottom Spacing */}
-        <View style={styles.bottomSpacing} />
+        <View className="h-10" />
       </ScrollView>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  retryButton: {
-    minWidth: 120,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 24,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionHeader: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  sectionDescription: {
-    fontSize: 14,
-  },
-  horizontalScroll: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  // Article Cards
-  articlesGrid: {
-    paddingHorizontal: 20,
-    gap: 16,
-  },
-  articleCard: {
-    borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  articleImage: {
-    width: "100%",
-    height: 180,
-  },
-  articleContent: {
-    padding: 16,
-  },
-  articleTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  articleExcerpt: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  articleAuthor: {
-    fontSize: 12,
-  },
-  // Collection Cards
-  collectionCard: {
-    width: 280,
-    padding: 20,
-    borderRadius: 16,
-    minHeight: 120,
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  collectionTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  collectionDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  // Event Cards
-  eventCard: {
-    width: 280,
-    borderRadius: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  eventContent: {
-    padding: 16,
-  },
-  eventTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  eventDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 8,
-  },
-  eventDate: {
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  eventItem: {
-    fontSize: 12,
-  },
-  bottomSpacing: {
-    height: 40,
-  },
-});
 
 export default ExploreScreen;

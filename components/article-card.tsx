@@ -114,11 +114,12 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: "40%",
     aspectRatio: 1,
+    overflow: "hidden",
+    borderRadius: 8,
   },
   coverImage: {
     width: "100%",
-    aspectRatio: 1,
-    borderRadius: 8,
+    height: "100%",
   },
   content: {
     flex: 1,

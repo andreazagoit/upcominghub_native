@@ -82,6 +82,7 @@ export const CollectionCard: React.FC<CollectionCardProps> = ({
 const styles = StyleSheet.create({
   card: {
     minHeight: 120,
+    minWidth: 200,
   },
   content: {
     padding: 16,

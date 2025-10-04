@@ -139,9 +139,13 @@ const CollectionDetailScreen = () => {
   if (loading) {
     return (
       <>
+        <Stack.Screen options={{title: "Collezione"}} />
         <SafeAreaView
+          style={[
+            styles.container,
+            {backgroundColor: isDark ? "#000000" : "#ffffff"},
+          ]}
         >
-          <Stack.Screen options={{title: "Collezione"}} />
           <View style={styles.loadingContainer}>
             <ActivityIndicator
               size="large"

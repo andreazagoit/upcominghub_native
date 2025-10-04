@@ -10,6 +10,8 @@ import {useColorScheme} from "@/hooks/use-color-scheme";
 import {useAuthStore} from "@/stores/auth-store";
 import {ApolloProvider} from "@apollo/client/react";
 
+import "../global.css"
+
 export const unstable_settings = {
   initialRouteName: "(main)/home/index",
 };
