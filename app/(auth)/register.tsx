@@ -4,13 +4,7 @@ import {TextInput} from "@/components/ui/text-input";
 import {useAuth} from "@/hooks/use-auth";
 import {router} from "expo-router";
 import React, {useState} from "react";
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  StyleSheet,
-  View,
-} from "react-native";
+import {Alert, KeyboardAvoidingView, Platform, ScrollView, View} from "react-native";
 
 const RegisterScreen = () => {
   const [username, setUsername] = useState("");
@@ -106,18 +100,23 @@ const RegisterScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 bg-white dark:bg-black"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <View style={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.subtitle}>
+      <ScrollView 
+        className="flex-1"
+        contentContainerClassName="flex-1 px-6 py-8 justify-center"
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="items-center mb-12">
+          <Text variant="title" className="mb-2">Create Account</Text>
+          <Text className="text-center text-zinc-600 dark:text-zinc-400">
             Sign up to get started
           </Text>
         </View>
 
-        <View style={styles.form}>
+        <View className="gap-5">
           <TextInput
             label="Username"
             placeholder="Choose a username"
@@ -164,71 +163,27 @@ const RegisterScreen = () => {
           <Button
             onPress={handleRegister}
             loading={loading}
-            style={styles.registerButton}
+            className="mt-2"
           >
             Create Account
           </Button>
         </View>
 
-        <View style={styles.footer}>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.footerText}>
+        <View className="flex-row justify-center items-center mt-8">
+          <Text className="text-zinc-600 dark:text-zinc-400">
             Already have an account?{" "}
           </Text>
           <Button
             variant="ghost"
             onPress={handleLoginPress}
-            style={styles.loginButton}
+            className="px-0 py-0 min-h-0"
           >
             Sign In
           </Button>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000000", // Will be themed
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    justifyContent: "center",
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-  },
-  form: {
-    gap: 16,
-  },
-  registerButton: {
-    marginTop: 8,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 32,
-  },
-  footerText: {
-    fontSize: 14,
-  },
-  loginButton: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    minHeight: "auto",
-  },
-});
 
 export default RegisterScreen;

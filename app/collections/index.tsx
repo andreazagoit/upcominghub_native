@@ -1,18 +1,13 @@
 import {useQuery} from "@apollo/client/react";
 import {router} from "expo-router";
 import React from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
+import {FlatList, Pressable, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetCollectionsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
 import {Button} from "@/components/ui/button";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 
 const GET_COLLECTIONS = graphql(`
   query GetCollections($parentSlug: String) {
@@ -28,9 +23,6 @@ const GET_COLLECTIONS = graphql(`
 type Collection = NonNullable<GetCollectionsQuery["collections"]>[0];
 
 const CollectionsScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const {data, loading, error, refetch} = useQuery<GetCollectionsQuery>(
     GET_COLLECTIONS,
     {
@@ -43,88 +35,50 @@ const CollectionsScreen = () => {
 
   const renderCollection = ({item}: {item: Collection}) => (
     <Pressable
-      style={[
-        styles.collectionCard,
-        {
-          backgroundColor: isDark ? "#09090b" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-      ]}
+      className="rounded-2xl mb-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 p-4"
       onPress={() => router.push(`/collections/${item.slug}`)}
     >
-      <View style={styles.collectionContent}>
-        <View style={styles.collectionHeader}>
-          <Text
-            style={[
-              styles.collectionTitle,
-              {color: isDark ? "#ffffff" : "#111827"},
-            ]}
-            numberOfLines={2}
-          >
-            {item.name}
-          </Text>
-          {item.isFeatured && (
-            <View
-              style={[
-                styles.featuredBadge,
-                {backgroundColor: isDark ? "#3b82f6" : "#2563eb"},
-              ]}
-            >
-              <Text style={styles.featuredText}>⭐</Text>
-            </View>
-          )}
-        </View>
-        {item.description && (
-          <Text
-            className="text-zinc-600 dark:text-zinc-400"
-            style={styles.collectionDescription}
+      <View className="flex-row justify-between items-start mb-2">
+        <Text
+          variant="subtitle"
+          className="flex-1 leading-snug"
+          numberOfLines={2}
+        >
+          {item.name}
+        </Text>
+        {item.isFeatured && (
+          <View className="px-2 py-1 rounded-xl ml-2 bg-blue-600 dark:bg-blue-500">
+            <Text variant="caption">⭐</Text>
+          </View>
+        )}
+      </View>
+      {item.description && (
+        <Text
+          variant="caption"
+          className="leading-5 text-zinc-600 dark:text-zinc-400"
             numberOfLines={3}
           >
             {item.description}
           </Text>
         )}
-      </View>
     </Pressable>
   );
 
   if (loading && !data) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
-            Caricamento collezioni...
-          </Text>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <Loading message="Caricamento collezioni..." />
       </View>
     );
   }
 
   if (error || !data) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
-            {error?.message || "Impossibile caricare le collezioni"}
-          </Text>
-          <Button onPress={() => refetch()} style={styles.retryButton}>
-            Riprova
-          </Button>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <ErrorView 
+          message={error?.message || "Impossibile caricare le collezioni"}
+          onRetry={() => refetch()}
+        />
       </View>
     );
   }
@@ -132,41 +86,26 @@ const CollectionsScreen = () => {
   const collections = data?.collections || [];
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
+    <View className="flex-1 bg-white dark:bg-black">
       {collections.length > 0 && (
-        <View
-          style={[
-            styles.header,
-            {borderBottomColor: isDark ? "#374151" : "#e5e7eb"},
-          ]}
-        >
-          <Text style={styles.headerTitle}>Collezioni</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.collectionCount}>
+        <View className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <Text variant="title" className="mb-1">Collezioni</Text>
+          <Text variant="caption" className="text-zinc-600 dark:text-zinc-400">
             {collections.length} collezioni disponibili
           </Text>
         </View>
       )}
 
       {collections.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>🗂️</Text>
-          <Text
-            style={[styles.emptyTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          >
+        <View className="flex-1 justify-center items-center px-10">
+          <Text className="text-6xl mb-4">🗂️</Text>
+          <Text variant="title" className="mb-2 text-center">
             Nessuna collezione disponibile
           </Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
+          <Text variant="caption" className="text-center mb-6 text-zinc-600 dark:text-zinc-400">
             Le collezioni saranno disponibili presto
           </Text>
-          <Button
-            onPress={() => router.push("/(main)/explore")}
-            style={styles.exploreButton}
-          >
+          <Button onPress={() => router.push("/(main)/explore" as any)}>
             Esplora contenuti
           </Button>
         </View>
@@ -175,135 +114,12 @@ const CollectionsScreen = () => {
           data={collections}
           renderItem={renderCollection}
           keyExtractor={(item) => item.slug}
-          contentContainerStyle={styles.listContainer}
+          contentContainerClassName="p-5"
           showsVerticalScrollIndicator={false}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
         />
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 100,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  retryButton: {
-    minWidth: 120,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  exploreButton: {
-    minWidth: 200,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  collectionCount: {
-    fontSize: 14,
-  },
-  listContainer: {
-    padding: 20,
-  },
-  columnWrapper: {
-    gap: 16,
-  },
-  collectionCard: {
-    flex: 1,
-    maxWidth: "48%",
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    minHeight: 140,
-  },
-  collectionContent: {
-    padding: 16,
-  },
-  collectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 8,
-  },
-  collectionTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    flex: 1,
-    lineHeight: 22,
-  },
-  featuredBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginLeft: 8,
-  },
-  featuredText: {
-    fontSize: 12,
-  },
-  collectionDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-});
 
 export default CollectionsScreen;

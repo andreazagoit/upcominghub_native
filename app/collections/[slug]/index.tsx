@@ -1,20 +1,15 @@
 import {useQuery, useMutation} from "@apollo/client/react";
 import {router, useLocalSearchParams, Stack} from "expo-router";
 import React, {useState} from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import {Pressable, ScrollView, View} from "react-native";
 import {Image} from "@/components/ui/image";
 import {graphql} from "@/graphql/generated";
 import type {GetCollectionQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
 import {Button} from "@/components/ui/button";
-import {useColorScheme} from "@/hooks/use-color-scheme";
 import {CollectionCard} from "@/components/collection-card";
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
 
 const TOGGLE_COLLECTION_FAVORITE = graphql(`
   mutation ToggleCollectionFavorite($collectionSlug: String!) {
@@ -85,8 +80,6 @@ type SubCollection = NonNullable<
 >[0];
 
 const CollectionDetailScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const {slug} = useLocalSearchParams<{slug: string}>();
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -139,21 +132,8 @@ const CollectionDetailScreen = () => {
     return (
       <>
         <Stack.Screen options={{title: "Collezione"}} />
-        <View
-          style={[
-            styles.container,
-            {backgroundColor: isDark ? "#000000" : "#ffffff"},
-          ]}
-        >
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator
-              size="large"
-              color={isDark ? "#3b82f6" : "#2563eb"}
-            />
-            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
-              Caricamento collezione...
-            </Text>
-          </View>
+        <View className="flex-1 bg-white dark:bg-black">
+          <Loading message="Caricamento collezione..." />
         </View>
       </>
     );
@@ -163,30 +143,12 @@ const CollectionDetailScreen = () => {
     return (
       <>
         <Stack.Screen options={{title: "Collezione"}} />
-        <View
-          style={[
-            styles.container,
-            {backgroundColor: isDark ? "#000000" : "#ffffff"},
-          ]}
-        >
-          <View style={styles.errorContainer}>
-            <Text style={styles.emptyIcon}>🗂️</Text>
-            <Text
-              style={[
-                styles.errorTitle,
-                {color: isDark ? "#ffffff" : "#111827"},
-              ]}
-            >
-              {error ? "Errore nel caricamento" : "Collezione non trovata"}
-            </Text>
-            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
-              {error?.message ||
-                "La collezione che stai cercando non esiste o è stata rimossa"}
-            </Text>
-            <Button onPress={() => router.back()} style={styles.backButton}>
-              Torna indietro
-            </Button>
-          </View>
+        <View className="flex-1 bg-white dark:bg-black">
+          <ErrorView 
+            message={error?.message || "La collezione che stai cercando non esiste o è stata rimossa"}
+            onRetry={() => router.back()}
+            retryText="Torna indietro"
+          />
         </View>
       </>
     );
@@ -194,38 +156,35 @@ const CollectionDetailScreen = () => {
 
   const renderEvent = ({item}: {item: Event}) => (
     <Pressable
-      style={[
-        styles.eventCard,
-        {
-          backgroundColor: isDark ? "#09090b" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-      ]}
+      className="rounded-2xl mb-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 overflow-hidden"
       onPress={() => item.item?.slug && router.push(`/items/${item.item.slug}`)}
     >
-      <Image uri={item.cover} style={styles.eventCover} />
-      <View style={styles.eventContent}>
+      <View className="w-full h-[180px]">
+        <Image uri={item.cover} style={{width: "100%", height: 180}} />
+      </View>
+      <View className="p-4">
         <Text
-          style={[styles.eventTitle, {color: isDark ? "#ffffff" : "#111827"}]}
+          variant="subtitle"
+          className="mb-1.5"
           numberOfLines={2}
         >
           {item.name}
         </Text>
         {item.item && (
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.eventItem}>
+          <Text variant="caption" className="mb-1 text-zinc-600 dark:text-zinc-400">
             🎯 {item.item.name}
           </Text>
         )}
         {item.dayStart && item.monthStart && item.yearStart && (
-          <Text className="text-zinc-500 dark:text-zinc-500" style={styles.eventDate}>
+          <Text variant="caption" className="mb-2 text-zinc-500 dark:text-zinc-500">
             📅 {item.dayStart}/{item.monthStart}/{item.yearStart}
             {item.timeStart && ` • ${item.timeStart}`}
           </Text>
         )}
         {item.description && (
           <Text
-            className="text-zinc-600 dark:text-zinc-400"
-            style={styles.eventDescription}
+            variant="body"
+            className="leading-5 text-zinc-600 dark:text-zinc-400"
             numberOfLines={2}
           >
             {item.description}
@@ -245,12 +204,12 @@ const CollectionDetailScreen = () => {
             <Pressable
               onPress={handleToggleFavorite}
               disabled={toggleLoading}
-              style={styles.headerButton}
+              className="p-2"
             >
               {toggleLoading ? (
-                <ActivityIndicator size="small" color={isDark ? "#3b82f6" : "#2563eb"} />
+                <Loading size="small" />
               ) : (
-                <Text style={styles.heartIcon}>
+                <Text className="text-2xl">
                   {isFavorite ? "❤️" : "🤍"}
                 </Text>
               )}
@@ -258,20 +217,15 @@ const CollectionDetailScreen = () => {
           ),
         }}
       />
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
+      <View className="flex-1 bg-white dark:bg-black">
         <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View style={styles.headerContainer}>
-          <Text style={[styles.title, {color: isDark ? "#ffffff" : "#111827"}]}>
+        <View className="px-5 pt-6 pb-8">
+          <Text variant="title" className="mb-2">
             {collection.name}
           </Text>
           {collection.description && (
-            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.description}>
+            <Text className="leading-6 text-zinc-600 dark:text-zinc-400">
               {collection.description}
             </Text>
           )}
@@ -279,22 +233,17 @@ const CollectionDetailScreen = () => {
 
         {/* Collections */}
         {subcollections.length > 0 && (
-          <View style={styles.section}>
-            <Text
-              style={[
-                styles.sectionTitle,
-                {color: isDark ? "#ffffff" : "#111827"},
-              ]}
-            >
+          <View className="mb-8">
+            <Text variant="subtitle" className="px-5 mb-4">
               Collezioni
             </Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.horizontalScroll}
+              contentContainerClassName="px-5 gap-3"
             >
               {subcollections.map((collection) => (
-                <View key={collection.slug} style={styles.collectionCardWrapper}>
+                <View key={collection.slug}>
                   <CollectionCard
                     collection={{
                       slug: collection.slug,
@@ -311,24 +260,19 @@ const CollectionDetailScreen = () => {
         )}
 
         {/* Events */}
-        <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              {color: isDark ? "#ffffff" : "#111827"},
-            ]}
-          >
+        <View className="mb-8">
+          <Text variant="subtitle" className="px-5 mb-4">
             Eventi e Rilasci
           </Text>
           {events.length === 0 ? (
-            <View style={styles.emptyEventsContainer}>
-              <Text style={styles.emptyEventsIcon}>📅</Text>
-              <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyEventsText}>
+            <View className="items-center py-10 px-5">
+              <Text className="text-6xl mb-4">📅</Text>
+              <Text variant="caption" className="text-center text-zinc-600 dark:text-zinc-400">
                 Nessun evento disponibile per questa collezione
               </Text>
             </View>
           ) : (
-            <View style={styles.eventsContainer}>
+            <View className="px-5">
               {events.map((event) => (
                 <View key={event.id}>{renderEvent({item: event})}</View>
               ))}
@@ -337,11 +281,10 @@ const CollectionDetailScreen = () => {
         </View>
 
         {/* Back Button */}
-        <View style={styles.footer}>
+        <View className="px-5 py-6 border-t border-gray-200 dark:border-gray-700 mb-5">
           <Button
             onPress={() => router.back()}
             variant="outline"
-            style={styles.backButtonBottom}
           >
             ← Torna alle collezioni
           </Button>
@@ -351,139 +294,5 @@ const CollectionDetailScreen = () => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  backButton: {
-    marginTop: 16,
-  },
-  headerContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 24,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  section: {
-    marginBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 16,
-    paddingHorizontal: 20,
-  },
-  horizontalScroll: {
-    paddingHorizontal: 20,
-    gap: 12,
-  },
-  collectionCardWrapper: {
-    width: 280,
-  },
-  eventsContainer: {
-    paddingHorizontal: 20,
-  },
-  eventCard: {
-    borderRadius: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  eventCover: {
-    width: "100%",
-    height: 180,
-  },
-  eventContent: {
-    padding: 16,
-  },
-  eventTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  eventItem: {
-    fontSize: 13,
-    marginBottom: 4,
-  },
-  eventDate: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  eventDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  emptyEventsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 40,
-    alignItems: "center",
-  },
-  emptyEventsIcon: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyEventsText: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  footer: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  backButtonBottom: {
-    marginTop: 20,
-  },
-  headerButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  heartIcon: {
-    fontSize: 24,
-  },
-});
 
 export default CollectionDetailScreen;

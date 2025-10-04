@@ -1,18 +1,13 @@
 import {useQuery} from "@apollo/client/react";
 import {router} from "expo-router";
 import React from "react";
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
+import {FlatList, Pressable, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetArticlesQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
-import {Button} from "@/components/ui/button";
-import {useColorScheme} from "@/hooks/use-color-scheme";
+import {Image} from "@/components/ui/image";
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
 
 const GET_ARTICLES = graphql(`
   query GetArticles($filter: ArticlesFilterInput) {
@@ -60,9 +55,6 @@ const GET_ARTICLES = graphql(`
 type Article = NonNullable<GetArticlesQuery["articles"]>["data"][0];
 
 const ArticlesScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const {data, loading, error, refetch} = useQuery<GetArticlesQuery>(
     GET_ARTICLES,
     {
@@ -79,63 +71,52 @@ const ArticlesScreen = () => {
 
   const renderArticle = ({item}: {item: Article}) => (
     <Pressable
-      style={[
-        styles.articleCard,
-        {
-          backgroundColor: isDark ? "#09090b" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-      ]}
+      className="rounded-2xl mb-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 overflow-hidden"
       onPress={() => router.push(`/articles/${item.slug}`)}
     >
       {item.cover && (
         <Image
-          source={{uri: item.cover}}
-          style={styles.articleCover}
-          resizeMode="cover"
+          uri={item.cover}
+          style={{width: "100%", height: 200}}
         />
       )}
-      <View style={styles.articleContent}>
+      <View className="p-4">
         <Text
-          style={[styles.articleTitle, {color: isDark ? "#ffffff" : "#111827"}]}
+          variant="subheading"
+          className="mb-2"
           numberOfLines={2}
         >
           {item.title}
         </Text>
         {item.excerpt && (
           <Text
-            className="text-zinc-600 dark:text-zinc-400"
-            style={styles.articleExcerpt}
+            variant="caption"
+            className="leading-5 mb-3 text-zinc-600 dark:text-zinc-400"
             numberOfLines={3}
           >
             {item.excerpt}
           </Text>
         )}
-        <View style={styles.articleMeta}>
+        <View className="flex-row justify-between items-center mb-2">
           {item.author && (
-            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.authorName}>
+            <Text variant="caption" className="font-medium text-zinc-600 dark:text-zinc-400">
               di {item.author.name}
             </Text>
           )}
-          <Text className="text-zinc-500 dark:text-zinc-500" style={styles.publishDate}>
+          <Text variant="caption" className="text-zinc-500 dark:text-zinc-500">
             {new Date(item.createdAt).toLocaleDateString("it-IT")}
           </Text>
         </View>
         {item.collections && item.collections.length > 0 && (
-          <View style={styles.collectionsContainer}>
+          <View className="flex-row flex-wrap gap-1.5 mt-2">
             {item.collections.slice(0, 3).map((collection) => (
               <View
                 key={collection.id}
-                style={[
-                  styles.collectionTag,
-                  {backgroundColor: isDark ? "#374151" : "#f3f4f6"},
-                ]}
+                className="px-2 py-1 rounded-md bg-gray-100 dark:bg-gray-700"
               >
                 <Text
-                  style={[
-                    styles.collectionText,
-                    {color: isDark ? "#d1d5db" : "#374151"},
-                  ]}
+                  variant="caption"
+                  className="text-[11px] font-medium text-gray-700 dark:text-gray-300"
                 >
                   {collection.name}
                 </Text>
@@ -149,42 +130,19 @@ const ArticlesScreen = () => {
 
   if (loading && !data) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
-            Caricamento articoli...
-          </Text>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <Loading message="Caricamento articoli..." />
       </View>
     );
   }
 
   if (error || !data) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
-            {error?.message || "Impossibile caricare gli articoli"}
-          </Text>
-          <Button onPress={() => refetch()} style={styles.retryButton}>
-            Riprova
-          </Button>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <ErrorView 
+          message={error?.message || "Impossibile caricare gli articoli"}
+          onRetry={() => refetch()}
+        />
       </View>
     );
   }
@@ -192,36 +150,23 @@ const ArticlesScreen = () => {
   const articles = data?.articles?.data || [];
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-      edges={["left", "right"]}
-    >
+    <View className="flex-1 bg-white dark:bg-black">
       {data?.articles?.pagination && (
-        <View
-          style={[
-            styles.header,
-            {borderBottomColor: isDark ? "#374151" : "#e5e7eb"},
-          ]}
-        >
-          <Text style={styles.headerTitle}>Articoli</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.articleCount}>
+        <View className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <Text variant="title" className="mb-1">Articoli</Text>
+          <Text variant="caption" className="text-zinc-600 dark:text-zinc-400">
             {data.articles.pagination.total} articoli disponibili
           </Text>
         </View>
       )}
 
       {articles.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📰</Text>
-          <Text
-            style={[styles.emptyTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          >
+        <View className="flex-1 justify-center items-center px-5">
+          <Text className="text-6xl mb-4">📰</Text>
+          <Text variant="title" className="mb-2 text-center">
             Nessun articolo disponibile
           </Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
+          <Text variant="caption" className="text-center text-zinc-600 dark:text-zinc-400">
             Gli articoli saranno disponibili presto
           </Text>
         </View>
@@ -230,140 +175,12 @@ const ArticlesScreen = () => {
           data={articles}
           renderItem={renderArticle}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.listContainer}
+          contentContainerClassName="p-5"
           showsVerticalScrollIndicator={false}
         />
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 100, // Compensa l'header trasparente
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  retryButton: {
-    minWidth: 120,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: "center",
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  articleCount: {
-    fontSize: 14,
-  },
-  listContainer: {
-    padding: 20,
-  },
-  articleCard: {
-    borderRadius: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  articleCover: {
-    width: "100%",
-    height: 200,
-  },
-  articleContent: {
-    padding: 16,
-  },
-  articleTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  articleExcerpt: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  articleMeta: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  authorName: {
-    fontSize: 12,
-    fontWeight: "500",
-  },
-  publishDate: {
-    fontSize: 12,
-  },
-  collectionsContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
-    marginTop: 8,
-  },
-  collectionTag: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  collectionText: {
-    fontSize: 11,
-    fontWeight: "500",
-  },
-});
 
 export default ArticlesScreen;

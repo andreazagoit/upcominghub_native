@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  StyleSheet,
   View,
 } from "react-native";
 
@@ -117,26 +116,26 @@ const LoginScreen = () => {
 
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      className="flex-1 bg-white dark:bg-black"
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerClassName="flex-1"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Bentornato</Text>
-            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.subtitle}>
+        <View className="flex-1 px-6 py-8 justify-center">
+          <View className="items-center mb-12">
+            <Text variant="title" className="mb-2">Bentornato</Text>
+            <Text className="text-center text-zinc-600 dark:text-zinc-400">
               Accedi al tuo account Upcoming Hub
             </Text>
           </View>
 
-          <View style={styles.form}>
+          <View className="gap-5">
             {errors.general && (
-              <View style={styles.errorContainer}>
-                <Text style={styles.errorText}>{errors.general}</Text>
+              <View className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 rounded-lg p-3 mb-1">
+                <Text className="text-red-600 dark:text-red-400 text-sm leading-5">{errors.general}</Text>
               </View>
             )}
 
@@ -188,21 +187,21 @@ const LoginScreen = () => {
               onPress={handleLogin}
               loading={loading}
               disabled={loading}
-              style={styles.loginButton}
+              className="mt-2"
             >
               {loading ? "Accesso in corso..." : "Accedi"}
             </Button>
           </View>
 
-          <View style={styles.footer}>
-            <Text className="text-zinc-600 dark:text-zinc-400" style={styles.footerText}>
+          <View className="flex-row justify-center items-center mt-8">
+            <Text className="text-zinc-600 dark:text-zinc-400">
               Non hai ancora un account?{" "}
             </Text>
             <Button
               variant="ghost"
               onPress={handleRegisterPress}
-              style={styles.registerButton}
               disabled={loading}
+              className="px-0 py-0 min-h-0"
             >
               Registrati
             </Button>
@@ -212,67 +211,5 @@ const LoginScreen = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000000", // Will be themed
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    justifyContent: "center",
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 48,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    textAlign: "center",
-  },
-  form: {
-    gap: 20,
-  },
-  errorContainer: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(239, 68, 68, 0.3)",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 4,
-  },
-  errorText: {
-    color: "#ef4444",
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  loginButton: {
-    marginTop: 8,
-  },
-  footer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 32,
-  },
-  footerText: {
-    fontSize: 14,
-  },
-  registerButton: {
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-    minHeight: "auto",
-  },
-});
 
 export default LoginScreen;

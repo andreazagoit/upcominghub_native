@@ -1,22 +1,14 @@
 import {useQuery} from "@apollo/client/react";
 import {router} from "expo-router";
 import React from "react";
-import {
-  ActivityIndicator,
-  Dimensions,
-  FlatList,
-  Pressable,
-  StyleSheet,
-  View,
-} from "react-native";
+import {FlatList, Pressable, View} from "react-native";
 import {graphql} from "@/graphql/generated";
 import type {GetItemsQuery} from "@/graphql/generated/graphql";
 import {Text} from "@/components/ui/text";
-import {Button} from "@/components/ui/button";
 import {Image} from "@/components/ui/image";
-import {useColorScheme} from "@/hooks/use-color-scheme";
-
-const {width} = Dimensions.get("window");
+import {Loading} from "@/components/ui/loading";
+import {ErrorView} from "@/components/ui/error-view";
+import {Button} from "@/components/ui/button";
 
 const GET_ITEMS = graphql(`
   query GetItems($page: Int, $limit: Int, $searchTerm: String) {
@@ -51,9 +43,6 @@ const GET_ITEMS = graphql(`
 type Item = NonNullable<GetItemsQuery["items"]>["data"][0];
 
 const ItemsScreen = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
-
   const {data, loading, error, refetch} = useQuery<GetItemsQuery>(GET_ITEMS, {
     variables: {
       page: 1,
@@ -65,45 +54,42 @@ const ItemsScreen = () => {
 
   const renderItem = ({item}: {item: Item}) => (
     <Pressable
-      style={[
-        styles.itemCard,
-        {
-          backgroundColor: isDark ? "#09090b" : "#ffffff",
-          borderColor: isDark ? "#374151" : "#e5e7eb",
-        },
-      ]}
+      className="rounded-2xl mb-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 overflow-hidden"
       onPress={() => router.push(`/items/${item.slug}`)}
     >
       {item.cover && (
-        <Image
-          uri={item.cover}
-          style={styles.itemCover}
-        />
+        <View className="w-full h-[200px]">
+          <Image
+            uri={item.cover}
+            style={{width: "100%", height: 200}}
+          />
+        </View>
       )}
-      <View style={styles.itemContent}>
+      <View className="p-4">
         <Text
-          style={[styles.itemTitle, {color: isDark ? "#ffffff" : "#111827"}]}
+          variant="subtitle"
+          className="mb-2"
           numberOfLines={2}
         >
           {item.name}
         </Text>
         {item.description && (
           <Text
-            className="text-zinc-600 dark:text-zinc-400"
-            style={styles.itemDescription}
+            variant="caption"
+            className="leading-5 mb-3 text-zinc-600 dark:text-zinc-400"
             numberOfLines={3}
           >
             {item.description}
           </Text>
         )}
         {item.events && item.events.length > 0 && (
-          <View style={styles.eventsInfo}>
-            <Text className="text-zinc-500 dark:text-zinc-500" style={styles.eventsCount}>
+          <View className="gap-1">
+            <Text variant="caption" className="text-zinc-500 dark:text-zinc-500">
               📅 {item.events.length} event
               {item.events.length !== 1 ? "i" : "o"}
             </Text>
             {item.events[0].yearStart && (
-              <Text className="text-zinc-500 dark:text-zinc-500" style={styles.nextEvent}>
+              <Text variant="caption" className="text-zinc-500 dark:text-zinc-500">
                 Prossimo: {item.events[0].dayStart}/{item.events[0].monthStart}/
                 {item.events[0].yearStart}
               </Text>
@@ -116,42 +102,19 @@ const ItemsScreen = () => {
 
   if (loading && !data) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator
-            size="large"
-            color={isDark ? "#3b82f6" : "#2563eb"}
-          />
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.loadingText}>
-            Caricamento items...
-          </Text>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <Loading message="Caricamento items..." />
       </View>
     );
   }
 
   if (error || !data) {
     return (
-      <View
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? "#000000" : "#ffffff"},
-        ]}
-      >
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Errore nel caricamento</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.errorText}>
-            {error?.message || "Impossibile caricare gli items"}
-          </Text>
-          <Button onPress={() => refetch()} style={styles.retryButton}>
-            Riprova
-          </Button>
-        </View>
+      <View className="flex-1 bg-white dark:bg-black">
+        <ErrorView 
+          message={error?.message || "Impossibile caricare gli items"}
+          onRetry={() => refetch()}
+        />
       </View>
     );
   }
@@ -160,41 +123,26 @@ const ItemsScreen = () => {
   const pagination = data?.items?.pagination;
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? "#000000" : "#ffffff"},
-      ]}
-    >
+    <View className="flex-1 bg-white dark:bg-black">
       {pagination && (
-        <View
-          style={[
-            styles.header,
-            {borderBottomColor: isDark ? "#374151" : "#e5e7eb"},
-          ]}
-        >
-          <Text style={styles.headerTitle}>Items</Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.itemCount}>
+        <View className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <Text variant="title" className="mb-1">Items</Text>
+          <Text variant="caption" className="text-zinc-600 dark:text-zinc-400">
             {pagination.total} items disponibili
           </Text>
         </View>
       )}
 
       {items.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyIcon}>📦</Text>
-          <Text
-            style={[styles.emptyTitle, {color: isDark ? "#ffffff" : "#111827"}]}
-          >
+        <View className="flex-1 justify-center items-center px-10">
+          <Text className="text-6xl mb-4">📦</Text>
+          <Text variant="title" className="mb-2 text-center">
             Nessun item disponibile
           </Text>
-          <Text className="text-zinc-600 dark:text-zinc-400" style={styles.emptyText}>
+          <Text variant="caption" className="text-center mb-6 text-zinc-600 dark:text-zinc-400">
             Gli items saranno disponibili presto
           </Text>
-          <Button
-            onPress={() => router.push("/(main)/explore")}
-            style={styles.exploreButton}
-          >
+          <Button onPress={() => router.push("/(main)/explore" as any)}>
             Esplora contenuti
           </Button>
         </View>
@@ -203,135 +151,12 @@ const ItemsScreen = () => {
           data={items}
           renderItem={renderItem}
           keyExtractor={(item) => String(item.id)}
-          contentContainerStyle={styles.listContainer}
+          contentContainerClassName="p-5"
           showsVerticalScrollIndicator={false}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
         />
       )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 100,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  errorTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  retryButton: {
-    minWidth: 120,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 40,
-  },
-  emptyIcon: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "center",
-  },
-  emptyText: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 24,
-  },
-  exploreButton: {
-    minWidth: 200,
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-  },
-  headerTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-  itemCount: {
-    fontSize: 14,
-  },
-  listContainer: {
-    padding: 20,
-  },
-  columnWrapper: {
-    gap: 16,
-  },
-  itemCard: {
-    flex: 1,
-    maxWidth: (width - 56) / 2,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginBottom: 16,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  itemCover: {
-    width: "100%",
-    height: 140,
-  },
-  itemContent: {
-    padding: 12,
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 6,
-    lineHeight: 22,
-  },
-  itemDescription: {
-    fontSize: 13,
-    lineHeight: 18,
-    marginBottom: 8,
-  },
-  eventsInfo: {
-    marginTop: 8,
-    paddingTop: 8,
-    gap: 4,
-  },
-  eventsCount: {
-    fontSize: 11,
-  },
-  nextEvent: {
-    fontSize: 11,
-  },
-});
 
 export default ItemsScreen;
